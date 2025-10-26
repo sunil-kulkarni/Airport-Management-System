@@ -1,11 +1,43 @@
-first button is GUI it will give interactive map of india and the connections of that airport with destinations shown as line
+# Airport Management System
+This project is made using React-FastAPI-MySQL 
 
 
-4. Now try connecting with MySQL Workbench:
-Hostname: 127.0.0.1
+### Clone the project
+```bash
+git clone https://github.com/sunil-kulkarni/Airport-Management-System.git
+```
 
-Port: 3306
+### Install the necessary libraries
+#### For frontend
+```bash
+cd airport-management-frontend
+npm i
+```
 
-Username: root
+#### For backend
+Create a virtual environment
+```bash
+python3 -m venv .venv
+``` 
+Install the modules
+```bash
+pip install -r requirements.txt
+```
+### Initialise the database
+```bash
+mysql -u root -p < database/mini_project.sql
+```
 
-Password: Captial P ...
+### Start the Backend
+
+```bash
+uvicorn main:app --reload
+```
+
+### Start the Frontend
+
+```bash
+cd airport-management-frontend/src
+npm start
+```
+
