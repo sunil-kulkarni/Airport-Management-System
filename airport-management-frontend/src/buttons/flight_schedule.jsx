@@ -235,7 +235,7 @@ const FlightSchedule = () => {
           <div style={{ fontSize: '18px' }}>No {activeTab.toLowerCase()} flights found</div>
         </div>
       ) : (
-        // ...rest of component unchanged until flight cards rendering...
+        
 
 filteredFlights.map((flight, idx) => {
   // Determine airline color
