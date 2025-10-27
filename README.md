@@ -1,6 +1,7 @@
 # Airport Management System
 This project is made using React-FastAPI-MySQL 
 
+This application is designed for airport head of staff who can access all the details pertaining to airport operations and status at that moment 
 
 ### Clone the project
 ```bash
