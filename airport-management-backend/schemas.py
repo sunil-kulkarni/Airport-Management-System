@@ -67,12 +67,12 @@ class PassengerSchema(BaseModel):
     L_Name: str
     Passenger_name: Optional[str] = None
     DOB: Optional[date] = None
-    passport_no: Optional[str] = None
     Passenger_Address: Optional[str] = None
     Flight_no: str
-    
+    Passenger_status: Optional[str] = None
+
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class GateSchema(BaseModel):
     Gate_no: str

@@ -69,16 +69,15 @@ class Flight(Base):
 # 6. Passenger Table
 class Passenger(Base):
     __tablename__ = "Passenger"
-    
     Passenger_ID = Column(Integer, primary_key=True)
     F_Name = Column(String(100), nullable=False)
     M_Name = Column(String(100))
     L_Name = Column(String(100), nullable=False)
     Passenger_name = Column(String(200))
     DOB = Column(Date)
-    passport_no = Column(String(50), unique=True)
     Passenger_Address = Column(String(255))
     Flight_no = Column(String(20), ForeignKey('Flight.Flight_no'), nullable=False)
+    Passenger_status = Column(String(20))
 
 
 # 7. Gate Table

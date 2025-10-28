@@ -1,26 +1,18 @@
 from fastapi import FastAPI, Depends, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from typing import List
-
+from sqlalchemy import text
 from database import get_db, engine
-import models
-import schemas
-
-models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Airport Management System API")
 
-# CORS - MUST BE IMMEDIATELY AFTER app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
 
 @app.post("/signin")
 def signin(
@@ -29,116 +21,101 @@ def signin(
     db: Session = Depends(get_db)
 ):
     try:
-        # Query for Airport Head of Staff with matching first name and password
-        employee = db.query(models.Employee).filter(
-            models.Employee.F_Name == first_name,
-            models.Employee.pwd == password,
-            models.Employee.Job_title == "Airport Head of Staff"
-        ).first()
-
+        query = text("""
+            SELECT * FROM Employee 
+            WHERE F_Name = :first_name 
+              AND pwd = :password 
+              AND Job_title = 'Airport Head of Staff' LIMIT 1
+        """)
+        res = db.execute(query, {"first_name": first_name, "password": password})
+        employee = res.fetchone()
         if not employee:
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
-        # Return relevant employee info
         return {
             "Employee_ID": employee.Employee_ID,
             "Employee_name": employee.Employee_name,
             "Job_title": employee.Job_title,
             "Airport_ID": employee.Airport_ID,
-            # Compute age or other fields if needed here
         }
     except Exception as e:
         print(f"Error in signin: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
-# ==================== Reports ====================
-# ==================== REPORTS ROUTES ====================
 
 @app.get("/api/reports/flight-traffic")
 def get_flight_traffic_report(db: Session = Depends(get_db)):
     try:
-        flights = db.query(models.Flight).all()
-        
-        # Flight status breakdown
-        arrivals = len([f for f in flights if f.Flight_status == 'Arrival'])
-        departures = len([f for f in flights if f.Flight_status == 'Departure'])
-        
-        # Airline breakdown
+        flights = db.execute(text("SELECT * FROM Flight")).fetchall()
+        arrivals = sum(1 for f in flights if f.Flight_status == 'Arrival')
+        departures = sum(1 for f in flights if f.Flight_status == 'Departure')
+
         airline_stats = {}
-        for flight in flights:
-            if flight.Airline_name not in airline_stats:
-                airline_stats[flight.Airline_name] = 0
-            airline_stats[flight.Airline_name] += 1
-        
-        # Route breakdown
         routes = {}
+
         for flight in flights:
+            airline_stats[flight.Airline_name] = airline_stats.get(flight.Airline_name, 0) + 1
             route = f"{flight.src_city} → {flight.des_city}"
-            if route not in routes:
-                routes[route] = 0
-            routes[route] += 1
-        
+            routes[route] = routes.get(route, 0) + 1
+
+        top_routes = dict(sorted(routes.items(), key=lambda x: x[1], reverse=True)[:10])
+
         return {
             "total_flights": len(flights),
             "arrivals": arrivals,
             "departures": departures,
             "airline_breakdown": airline_stats,
-            "top_routes": dict(sorted(routes.items(), key=lambda x: x[1], reverse=True)[:10])
+            "top_routes": top_routes
         }
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/api/reports/employee-stats")
 def get_employee_report(db: Session = Depends(get_db)):
     try:
-        employees = db.query(models.Employee).all()
-        
-        # Job title breakdown
+        employees = db.execute(text("SELECT * FROM Employee")).fetchall()
         job_stats = {}
         total_salary = 0
-        
+
         for emp in employees:
-            if emp.Job_title not in job_stats:
-                job_stats[emp.Job_title] = {"count": 0, "total_salary": 0}
-            job_stats[emp.Job_title]["count"] += 1
-            job_stats[emp.Job_title]["total_salary"] += emp.Employee_Salary
+            job_title = emp.Job_title
+            if job_title not in job_stats:
+                job_stats[job_title] = {"count": 0, "total_salary": 0}
+            job_stats[job_title]["count"] += 1
+            job_stats[job_title]["total_salary"] += emp.Employee_Salary
             total_salary += emp.Employee_Salary
-        
+
+        avg_salary = total_salary // len(employees) if employees else 0
+
         return {
             "total_employees": len(employees),
             "total_salary_expense": total_salary,
-            "average_salary": total_salary // len(employees) if len(employees) > 0 else 0,
+            "average_salary": avg_salary,
             "job_breakdown": job_stats
         }
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/api/reports/passenger-traffic")
 def get_passenger_traffic_report(db: Session = Depends(get_db)):
     try:
-        passengers = db.query(models.Passenger).all()
-        tickets = db.query(models.Ticket).all()
-        baggage = db.query(models.Baggage).all()
-        
-        # Passenger stats
+        passengers = db.execute(text("SELECT * FROM Passenger")).fetchall()
+        tickets = db.execute(text("SELECT * FROM Ticket")).fetchall()
+        baggage = db.execute(text("SELECT * FROM Baggage")).fetchall()
+
         total_passengers = len(passengers)
         total_tickets = len(tickets)
         total_baggage = len(baggage)
-        
-        # Ticket class breakdown
+
         class_stats = {}
         for ticket in tickets:
-            if ticket.Class not in class_stats:
-                class_stats[ticket.Class] = 0
-            class_stats[ticket.Class] += 1
-        
-        # Baggage weight stats
+            cls = ticket.Class
+            class_stats[cls] = class_stats.get(cls, 0) + 1
+
         total_weight = sum(b.Baggage_weight for b in baggage if b.Baggage_weight)
-        avg_weight = total_weight / len(baggage) if len(baggage) > 0 else 0
-        
+        avg_weight = total_weight / total_baggage if total_baggage > 0 else 0
+
         return {
             "total_passengers": total_passengers,
             "total_tickets": total_tickets,
@@ -153,14 +130,10 @@ def get_passenger_traffic_report(db: Session = Depends(get_db)):
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-
-# ==================== Flight Schedule Route ====================
 @app.get("/api/flight-schedule")
 def get_flight_schedule(db: Session = Depends(get_db)):
     try:
-        flights = db.query(models.Flight).all()
-        
+        flights = db.execute(text("SELECT * FROM Flight")).fetchall()
         flight_list = []
         for f in flights:
             flight_list.append({
@@ -175,52 +148,34 @@ def get_flight_schedule(db: Session = Depends(get_db)):
                 "src_city": f.src_city,
                 "des_city": f.des_city
             })
-        
         return {"flights": flight_list}
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ADD this after your existing flight-schedule GET route
-
 @app.post("/api/flight-schedule/add")
 def add_flight(flight_data: dict, db: Session = Depends(get_db)):
     try:
-        new_flight = models.Flight(
-            Flight_no=flight_data['Flight_no'],
-            Airline_name=flight_data['Airline_name'],
-            Flight_status=flight_data['Flight_status'],
-            arrival_time=flight_data['arrival_time'],
-            Airport_ID=flight_data['Airport_ID'],
-            Airline_ID=int(flight_data['Airline_ID']),
-            Gate_no=flight_data['Gate_no'],
-            Terminal=int(flight_data['Terminal']) if flight_data['Terminal'] else None,
-            src_city=flight_data['src_city'],
-            des_city=flight_data['des_city']
-        )
-        
-        db.add(new_flight)
+        insert_query = text("""
+            INSERT INTO Flight (Flight_no, Airline_name, Flight_status, arrival_time, Airport_ID, Airline_ID, Gate_no, Terminal, src_city, des_city)
+            VALUES (:Flight_no, :Airline_name, :Flight_status, :arrival_time, :Airport_ID, :Airline_ID, :Gate_no, :Terminal, :src_city, :des_city)
+        """)
+        db.execute(insert_query, flight_data)
         db.commit()
-        db.refresh(new_flight)
-        
-        return {"message": "Flight added successfully", "flight_no": new_flight.Flight_no}
+        return {"message": "Flight added successfully", "flight_no": flight_data['Flight_no']}
     except Exception as e:
         db.rollback()
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.delete("/api/flight-schedule/delete/{flight_no}")
 def delete_flight(flight_no: str, db: Session = Depends(get_db)):
     try:
-        flight = db.query(models.Flight).filter(models.Flight.Flight_no == flight_no).first()
-        
-        if not flight:
+        delete_query = text("DELETE FROM Flight WHERE Flight_no = :flight_no")
+        result = db.execute(delete_query, {"flight_no": flight_no})
+        if result.rowcount == 0:
             raise HTTPException(status_code=404, detail="Flight not found")
-        
-        db.delete(flight)
         db.commit()
-        
         return {"message": "Flight deleted successfully", "flight_no": flight_no}
     except HTTPException:
         raise
@@ -229,18 +184,10 @@ def delete_flight(flight_no: str, db: Session = Depends(get_db)):
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-# ==================== Airport Administration Route ====================
-
-# Add these routes to your main.py after your flight-schedule routes
-
-# ==================== EMPLOYEE ROUTES ====================
-
 @app.get("/api/employees")
 def get_employees(db: Session = Depends(get_db)):
     try:
-        employees = db.query(models.Employee).all()
-        
+        employees = db.execute(text("SELECT * FROM Employee")).fetchall()
         employee_list = []
         for emp in employees:
             employee_list.append({
@@ -255,51 +202,34 @@ def get_employees(db: Session = Depends(get_db)):
                 'Airport_ID': emp.Airport_ID,
                 'pwd': emp.pwd
             })
-        
         return {"employees": employee_list}
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.post("/api/employees/add")
 def add_employee(employee_data: dict, db: Session = Depends(get_db)):
     try:
-        new_employee = models.Employee(
-            Employee_ID=int(employee_data['Employee_ID']),
-            F_Name=employee_data['F_Name'],
-            M_Initial=employee_data.get('M_Initial'),
-            L_Name=employee_data['L_Name'],
-            Employee_name=employee_data['Employee_name'],
-            Hire_date=employee_data['Hire_date'],
-            Employee_Salary=int(employee_data['Employee_Salary']),
-            Job_title=employee_data['Job_title'],
-            Airport_ID=employee_data['Airport_ID'],
-            pwd=employee_data.get('pwd')
-        )
-        
-        db.add(new_employee)
+        insert_query = text("""
+            INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID, pwd)
+            VALUES (:Employee_ID, :F_Name, :M_Initial, :L_Name, :Employee_name, :Hire_date, :Employee_Salary, :Job_title, :Airport_ID, :pwd)
+        """)
+        db.execute(insert_query, employee_data)
         db.commit()
-        db.refresh(new_employee)
-        
-        return {"message": "Employee added successfully", "employee_id": new_employee.Employee_ID}
+        return {"message": "Employee added successfully", "employee_id": employee_data['Employee_ID']}
     except Exception as e:
         db.rollback()
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.delete("/api/employees/delete/{employee_id}")
 def delete_employee(employee_id: int, db: Session = Depends(get_db)):
     try:
-        employee = db.query(models.Employee).filter(models.Employee.Employee_ID == employee_id).first()
-        
-        if not employee:
+        delete_query = text("DELETE FROM Employee WHERE Employee_ID = :id")
+        result = db.execute(delete_query, {"id": employee_id})
+        if result.rowcount == 0:
             raise HTTPException(status_code=404, detail="Employee not found")
-        
-        db.delete(employee)
         db.commit()
-        
         return {"message": "Employee deleted successfully", "employee_id": employee_id}
     except HTTPException:
         raise
@@ -308,68 +238,56 @@ def delete_employee(employee_id: int, db: Session = Depends(get_db)):
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ==================== Crew Info Route ====================
-# ==================== CREW ROUTES ====================
-
 @app.get("/api/crew")
 def get_crew(db: Session = Depends(get_db)):
     try:
-        crew_members = db.query(
-            models.Crew,
-            models.Employee.Employee_name,
-            models.Flight.src_city,
-            models.Flight.des_city
-        ).join(
-            models.Employee, models.Crew.Employee_ID == models.Employee.Employee_ID
-        ).join(
-            models.Flight, models.Crew.Flight_no == models.Flight.Flight_no
-        ).all()
-        
+        query = text("""
+            SELECT c.Crew_ID, c.Crew_role, c.Employee_ID, e.Employee_name, c.Flight_no, f.src_city, f.des_city
+            FROM Crew c
+            JOIN Employee e ON c.Employee_ID = e.Employee_ID
+            JOIN Flight f ON c.Flight_no = f.Flight_no
+        """)
+        crew_members = db.execute(query).fetchall()
         crew_list = []
-        for crew, emp_name, src, des in crew_members:
+        for c in crew_members:
             crew_list.append({
-                'Crew_ID': crew.Crew_ID,
-                'Crew_role': crew.Crew_role,
-                'Employee_ID': crew.Employee_ID,
-                'Employee_name': emp_name,
-                'Flight_no': crew.Flight_no,
-                'src_city': src,
-                'des_city': des
+                'Crew_ID': c.Crew_ID,
+                'Crew_role': c.Crew_role,
+                'Employee_ID': c.Employee_ID,
+                'Employee_name': c.Employee_name,
+                'Flight_no': c.Flight_no,
+                'src_city': c.src_city,
+                'des_city': c.des_city
             })
-        
         return {"crew": crew_list}
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/api/flights-list")
 def get_flights_list(db: Session = Depends(get_db)):
     try:
-        flights = db.query(models.Flight.Flight_no, models.Flight.src_city, models.Flight.des_city).all()
-        
-        flight_list = [
-            {
+        flights = db.execute(text("SELECT Flight_no, src_city, des_city FROM Flight")).fetchall()
+        flight_list = []
+        for f in flights:
+            flight_list.append({
                 'Flight_no': f.Flight_no,
                 'src_city': f.src_city,
                 'des_city': f.des_city
-            } for f in flights
-        ]
-        
+            })
         return {"flights": flight_list}
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/api/crew-employees")
 def get_crew_employees(db: Session = Depends(get_db)):
     try:
-        employees = db.query(models.Employee).filter(
-            (models.Employee.Job_title == 'Pilot') | 
-            (models.Employee.Job_title == 'Flight Attendant')
-        ).all()
-        
+        query = text("""
+            SELECT Employee_ID, Employee_name, Job_title FROM Employee
+            WHERE Job_title IN ('Pilot', 'Flight Attendant')
+        """)
+        employees = db.execute(query).fetchall()
         employee_list = []
         for emp in employees:
             employee_list.append({
@@ -377,45 +295,48 @@ def get_crew_employees(db: Session = Depends(get_db)):
                 'Employee_name': emp.Employee_name,
                 'Job_title': emp.Job_title
             })
-        
         return {"employees": employee_list}
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@app.post("/api/crew/add")
-def add_crew(crew_data: dict, db: Session = Depends(get_db)):
+@app.put("/api/crew/assign")
+def assign_crew_to_flight(assignment_data: dict, db: Session = Depends(get_db)):
     try:
-        new_crew = models.Crew(
-            Crew_ID=int(crew_data['Crew_ID']),
-            Crew_role=crew_data['Crew_role'],
-            Employee_ID=int(crew_data['Employee_ID']),
-            Flight_no=crew_data['Flight_no']
-        )
+        crew_id = assignment_data.get("Crew_ID")
+        flight_no = assignment_data.get("Flight_no")
         
-        db.add(new_crew)
+        # Ensure both values exist
+        if not crew_id or not flight_no:
+            raise HTTPException(status_code=400, detail="Crew_ID and Flight_no are required")
+            
+        # Update Crew's Flight_no WHERE Crew_ID matches and current Flight_no IS NULL
+        update_query = text("""
+            UPDATE Crew 
+            SET Flight_no = :flight_no 
+            WHERE Crew_ID = :crew_id AND Flight_no IS NULL
+        """)
+        result = db.execute(update_query, {"crew_id": crew_id, "flight_no": flight_no})
+        if result.rowcount == 0:
+            # No rows updated = either Crew_ID not found or already assigned to a flight
+            raise HTTPException(status_code=404, detail="Crew member not found or already assigned")
         db.commit()
-        db.refresh(new_crew)
-        
-        return {"message": "Crew member added successfully", "crew_id": new_crew.Crew_ID}
+        return {"message": "Crew member assigned successfully", "crew_id": crew_id, "flight_no": flight_no}
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.delete("/api/crew/delete/{crew_id}")
 def delete_crew(crew_id: int, db: Session = Depends(get_db)):
     try:
-        crew = db.query(models.Crew).filter(models.Crew.Crew_ID == crew_id).first()
-        
-        if not crew:
+        delete_query = text("DELETE FROM Crew WHERE Crew_ID = :id")
+        result = db.execute(delete_query, {"id": crew_id})
+        if result.rowcount == 0:
             raise HTTPException(status_code=404, detail="Crew member not found")
-        
-        db.delete(crew)
         db.commit()
-        
         return {"message": "Crew member deleted successfully", "crew_id": crew_id}
     except HTTPException:
         raise
@@ -424,63 +345,78 @@ def delete_crew(crew_id: int, db: Session = Depends(get_db)):
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-# ==================== Passenger Info Route ====================
-@app.get("/api/passenger-info/data")
-def get_passenger_info_data(db: Session = Depends(get_db)):
+@app.get("/api/flights")
+def get_flights(db: Session = Depends(get_db)):
     try:
-        passengers = db.query(models.Passenger).all()
-        baggage = db.query(models.Baggage).all()
-        tickets = db.query(models.Ticket).all()
-        
-        passenger_list = []
-        for p in passengers:
-            passenger_list.append({
-                "Passenger_ID": p.Passenger_ID,
-                "F_Name": p.F_Name,
-                "M_Name": p.M_Name,
-                "L_Name": p.L_Name,
-                "Passenger_name": p.Passenger_name,
-                "DOB": str(p.DOB) if p.DOB else None,
-                "passport_no": p.passport_no,
-                "Passenger_Address": p.Passenger_Address,
-                "Flight_no": p.Flight_no
-            })
-        
-        baggage_list = []
-        for b in baggage:
-            baggage_list.append({
-                "Baggage_ID": b.Baggage_ID,
-                "Baggae_weight": float(b.Baggae_weight) if b.Baggae_weight else None,
-                "Baggage_status": b.Baggage_status,
-                "Passenger_ID": b.Passenger_ID,
-                "Flight_no": b.Flight_no
-            })
-        
-        ticket_list = []
-        for t in tickets:
-            ticket_list.append({
-                "Ticket_no": t.Ticket_no,
-                "Price": float(t.Price) if t.Price else None,
-                "Seat_No": t.Seat_No,
-                "Booking_date": str(t.Booking_date) if t.Booking_date else None,
-                "Flight_no": t.Flight_no,
-                "Passenger_ID": t.Passenger_ID
-            })
-        
-        return {"passengers": passenger_list, "baggage": baggage_list, "tickets": ticket_list}
+        flights = db.execute(text("SELECT DISTINCT Flight_no FROM Flight")).fetchall()
+        return {"flights": [f[0] for f in flights]}
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/flight/{flight_no}/passengers")
+def get_passengers_for_flight(flight_no: str, db: Session = Depends(get_db)):
+    try:
+        passengers = db.execute(text("SELECT * FROM Passenger WHERE Flight_no = :flight_no"), {"flight_no": flight_no}).fetchall()
 
-# ==================== Emergency Ground Route ====================
+        passenger_list = []
+        for p in passengers:
+            baggage = db.execute(text("SELECT * FROM Baggage WHERE Passenger_ID = :pid"), {"pid": p.Passenger_ID}).first()
+            ticket = db.execute(text("SELECT * FROM Ticket WHERE Passenger_ID = :pid"), {"pid": p.Passenger_ID}).first()
+            passenger_list.append({
+                "Passenger_ID": p.Passenger_ID,
+                "Passenger_name": p.Passenger_name,
+                "Passenger_status": p.Passenger_status or "Normal",
+                "baggage_id": baggage.Baggage_ID if baggage else None,
+                "ticket_id": ticket.Ticket_no if ticket else None,
+            })
+
+        normal = [p for p in passenger_list if p['Passenger_status'].lower() == "normal"]
+        flagged = [p for p in passenger_list if p['Passenger_status'].lower() != "normal"]
+
+        return {"passengers": normal + flagged}
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/passenger/{passenger_id}")
+def delete_passenger(passenger_id: int, db: Session = Depends(get_db)):
+    try:
+        delete_query = text("DELETE FROM Passenger WHERE Passenger_ID = :id")
+        result = db.execute(delete_query, {"id": passenger_id})
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Passenger not found")
+        db.commit()
+        return {"message": "Deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/passenger/{passenger_id}/status")
+def update_passenger_status(passenger_id: int, status: str, db: Session = Depends(get_db)):
+    try:
+        update_query = text("UPDATE Passenger SET Passenger_status = :status WHERE Passenger_ID = :id")
+        result = db.execute(update_query, {"status": status, "id": passenger_id})
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Passenger not found")
+        db.commit()
+        return {"message": "Updated"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/emergency-ground/data")
 def get_emergency_ground_data(db: Session = Depends(get_db)):
     try:
-        employees = db.query(models.Employee).all()
-        aircraft = db.query(models.Aircraft).all()
-        
+        employees = db.execute(text("SELECT Employee_ID, F_Name, L_Name, Job_title, Airport_ID FROM Employee")).fetchall()
+        aircraft = db.execute(text("SELECT Aircraft_ID, capacity, Manufacturer, Model, Airline_ID FROM Aircraft")).fetchall()
+
         employee_list = []
         for e in employees:
             employee_list.append({
@@ -490,7 +426,7 @@ def get_emergency_ground_data(db: Session = Depends(get_db)):
                 "Job_title": e.Job_title,
                 "Airport_ID": e.Airport_ID
             })
-        
+
         aircraft_list = []
         for a in aircraft:
             aircraft_list.append({
@@ -500,7 +436,7 @@ def get_emergency_ground_data(db: Session = Depends(get_db)):
                 "Model": a.Model,
                 "Airline_ID": a.Airline_ID
             })
-        
+
         return {"employees": employee_list, "aircraft": aircraft_list}
     except Exception as e:
         print(f"Error: {e}")
