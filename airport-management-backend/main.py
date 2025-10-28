@@ -306,7 +306,7 @@ def assign_crew_to_flight(assignment_data: dict, db: Session = Depends(get_db)):
         crew_id = assignment_data.get("Crew_ID")
         flight_no = assignment_data.get("Flight_no")
         
-        # Ensure both values exist
+    
         if not crew_id or not flight_no:
             raise HTTPException(status_code=400, detail="Crew_ID and Flight_no are required")
             
