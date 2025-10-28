@@ -10,10 +10,10 @@ const FlightSchedule = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [timeError, setTimeError] = useState('');
   
-  // Cities from Airport table
+
   const cities = ['Bengaluru', 'Hyderabad', 'Delhi', 'Mumbai', 'Chennai', 'Kolkata'];
   
-  // Form state for adding flight
+ 
   const [newFlight, setNewFlight] = useState({
     Flight_no: '',
     Airline_name: '',
