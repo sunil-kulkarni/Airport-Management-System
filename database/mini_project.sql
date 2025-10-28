@@ -437,12 +437,6 @@ INSERT INTO Crew (Crew_ID, Crew_role, Employee_ID, Flight_no) VALUES
 
 
 
--- Insert Sample Baggage
-
-
--- Insert Sample Tickets
-
-
 -- Assign first 6 pilots to flights
 UPDATE Crew SET Flight_no = '6E1862' WHERE Employee_ID IN (7011, 7012); -- 2 pilots to 6E1862
 UPDATE Crew SET Flight_no = 'IX1345' WHERE Employee_ID IN (7013, 7014); -- 2 pilots to IX1345
