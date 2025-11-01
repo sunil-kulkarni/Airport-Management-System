@@ -46,57 +46,45 @@ const PassengerInfo = () => {
 
   const handleFlaggedPassengerClick = (passenger) => {
     setSelectedPassenger(passenger);
+    setFlagReason(passenger.Passenger_status.toLowerCase());
+    setBaggageWeight(
+      passenger.baggage_weight !== null && passenger.baggage_weight !== undefined
+        ? passenger.baggage_weight.toString()
+        : ''
+    );
     setShowFlagModal(true);
-    setFlagReason('');
-    setBaggageWeight('');
   };
 
   const handleResolveFlag = () => {
     if (!flagReason) {
-      alert('Please select a reason');
+      alert('Flag reason is missing');
       return;
     }
 
-    if (flagReason === 'baggage_overweight' && !baggageWeight) {
+    if (flagReason === 'baggage overweight' && !baggageWeight) {
       alert('Please enter baggage weight');
       return;
     }
 
-    let action = '';
     let newStatus = selectedPassenger.Passenger_status;
 
-    if (flagReason === 'baggage_overweight') {
+    if (flagReason === 'baggage overweight') {
       const weight = parseFloat(baggageWeight);
-      if (weight > 3) {
-        action = 'remove';
-        // Remove passenger from flight
-        fetch(`http://localhost:8000/api/passengers/remove/${selectedPassenger.Passenger_ID}`, {
-          method: 'PUT'
-        })
-          .then(res => res.json())
-          .then(() => {
-            alert('Passenger removed due to baggage overweight (>3kg)');
-            setShowFlagModal(false);
-            fetchPassengersByFlight(selectedFlight);
-          })
-          .catch(error => {
-            alert('Error removing passenger: ' + error.message);
-          });
+      if (weight >= 33) {
+        alert('Passenger remains flagged due to baggage overweight (≥33kg)');
+        setShowFlagModal(false);
         return;
       } else {
-        action = 'normal';
         newStatus = 'Normal';
       }
     } else if (flagReason === 'illness' || flagReason === 'theft') {
-      action = 'keep';
-      newStatus = 'Flagged';
+      newStatus = selectedPassenger.Passenger_status; // Keep flagged, but UI disables resolve
     }
 
-    // Update passenger status
-    fetch(`http://localhost:8000/api/passengers/update-status/${selectedPassenger.Passenger_ID}`, {
+    fetch(`http://localhost:8000/api/passenger/${selectedPassenger.Passenger_ID}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus })
+      body: JSON.stringify({ status: newStatus }),
     })
       .then(res => res.json())
       .then(() => {
@@ -189,7 +177,7 @@ const PassengerInfo = () => {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 30 }}>
-                {/* Normal Passengers - Left Side */}
+                {/* Normal Passengers */}
                 <div>
                   <h3 style={{
                     fontSize: '20px',
@@ -251,7 +239,7 @@ const PassengerInfo = () => {
                   </div>
                 </div>
 
-                {/* Flagged Passengers - Right Side */}
+                {/* Flagged Passengers */}
                 <div>
                   <h3 style={{
                     fontSize: '20px',
@@ -355,110 +343,136 @@ const PassengerInfo = () => {
                   width: '90%'
                 }}
               >
-                <h3 style={{ marginBottom: 20 }}>Resolve Flag for {selectedPassenger.Passenger_name}</h3>
-                
+                <h3 style={{ marginBottom: 20 }}>
+                  Resolve Flag for {selectedPassenger.Passenger_name}
+                </h3>
+
                 <div style={{ marginBottom: 20 }}>
                   <label style={{ display: 'block', marginBottom: 8, fontWeight: '600', color: '#333' }}>
-                    Select Reason:
+                    Reason:
                   </label>
-                  <select
-                    value={flagReason}
-                    onChange={(e) => setFlagReason(e.target.value)}
+                  <p
                     style={{
-                      width: '100%',
                       padding: 10,
+                      backgroundColor: '#f0f0f0',
                       borderRadius: 5,
                       border: '1px solid #ccc',
-                      fontSize: 16
+                      fontSize: 16,
+                      marginTop: 0,
                     }}
                   >
-                    <option value="">-- Select Reason --</option>
-                    <option value="baggage_overweight">Baggage Overweight</option>
-                    <option value="illness">Illness</option>
-                    <option value="theft">Theft</option>
-                  </select>
+                    {selectedPassenger.Passenger_status}
+                  </p>
                 </div>
 
-                {flagReason === 'baggage_overweight' && (
-                  <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 8, fontWeight: '600', color: '#333' }}>
-                      Baggage Weight (kg):
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      placeholder="Enter weight in kg"
-                      value={baggageWeight}
-                      onChange={(e) => setBaggageWeight(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: 10,
-                        borderRadius: 5,
-                        border: '1px solid #ccc',
-                        fontSize: 16
-                      }}
-                    />
-                    <p style={{ fontSize: '12px', color: '#666', marginTop: 5 }}>
-                      * If weight {'>'} 3kg, passenger will be removed
-                    </p>
-                  </div>
+                {flagReason === 'baggage overweight' && (
+                  <>
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', marginBottom: 8, fontWeight: '600', color: '#333' }}>
+                        Baggage Weight (kg):
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        placeholder="Enter weight in kg"
+                        value={baggageWeight}
+                        onChange={e => setBaggageWeight(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: 10,
+                          borderRadius: 5,
+                          border: '1px solid #ccc',
+                          fontSize: 16,
+                        }}
+                      />
+                      <p style={{ fontSize: '12px', color: '#666', marginTop: 5 }}>
+                        * If weight ≥ 33kg, passenger will remain flagged.
+                      </p>
+                    </div>
+
+                    {baggageWeight && parseFloat(baggageWeight) < 33 ? (
+                      <p style={{ color: 'green', fontWeight: 'bold' }}>
+                        You can resolve this flag and set to Normal.
+                      </p>
+                    ) : (
+                      <p style={{ color: 'red', fontWeight: 'bold' }}>
+                        Cannot resolve flag with this weight.
+                      </p>
+                    )}
+                  </>
                 )}
 
-                {flagReason && (
-                  <div style={{
-                    backgroundColor: '#e7f3ff',
-                    padding: 15,
-                    borderRadius: 5,
-                    marginBottom: 20,
-                    border: '1px solid #b3d9ff'
-                  }}>
-                    <p style={{ fontSize: '14px', margin: 0, color: '#004085' }}>
-                      <strong>Action:</strong>{' '}
-                      {flagReason === 'baggage_overweight'
-                        ? baggageWeight && parseFloat(baggageWeight) > 3
-                          ? '❌ Remove passenger (overweight)'
-                          : '✅ Assign as Normal'
-                        : flagReason === 'illness'
-                        ? '⚠️ Keep as Flagged (Illness)'
-                        : '⚠️ Keep as Flagged (Theft)'}
-                    </p>
-                  </div>
+                {(flagReason === 'illness' || flagReason === 'theft') && (
+                  <p style={{ marginBottom: 20, color: '#dc3545', fontWeight: 'bold' }}>
+                    This passenger remains flagged and cannot be resolved.
+                  </p>
                 )}
 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                  <button
-                    onClick={() => {
-                      setShowFlagModal(false);
-                      setSelectedPassenger(null);
-                      setFlagReason('');
-                      setBaggageWeight('');
-                    }}
-                    style={{
-                      padding: '10px 20px',
-                      backgroundColor: '#6c757d',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 5,
-                      cursor: 'pointer',
-                      fontSize: 16
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleResolveFlag}
-                    style={{
-                      padding: '10px 20px',
-                      backgroundColor: '#007bff',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 5,
-                      cursor: 'pointer',
-                      fontSize: 16
-                    }}
-                  >
-                    Resolve
-                  </button>
+                  {(flagReason === 'illness' || flagReason === 'theft') ? (
+                    <button
+                      onClick={() => {
+                        setShowFlagModal(false);
+                        setSelectedPassenger(null);
+                        setFlagReason('');
+                        setBaggageWeight('');
+                      }}
+                      style={{
+                        padding: '10px 20px',
+                        backgroundColor: '#6c757d',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 5,
+                        cursor: 'pointer',
+                        fontSize: 16,
+                      }}
+                    >
+                      Close
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          setShowFlagModal(false);
+                          setSelectedPassenger(null);
+                          setFlagReason('');
+                          setBaggageWeight('');
+                        }}
+                        style={{
+                          padding: '10px 20px',
+                          backgroundColor: '#6c757d',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: 5,
+                          cursor: 'pointer',
+                          fontSize: 16,
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleResolveFlag}
+                        disabled={!baggageWeight || parseFloat(baggageWeight) >= 33}
+                        style={{
+                          padding: '10px 20px',
+                          backgroundColor:
+                            !baggageWeight || parseFloat(baggageWeight) >= 33
+                              ? '#ccc'
+                              : '#007bff',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: 5,
+                          cursor:
+                            !baggageWeight || parseFloat(baggageWeight) >= 33
+                              ? 'not-allowed'
+                              : 'pointer',
+                          fontSize: 16,
+                        }}
+                      >
+                        Resolve
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
