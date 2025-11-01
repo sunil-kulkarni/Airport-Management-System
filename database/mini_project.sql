@@ -452,35 +452,35 @@ INSERT INTO Passenger (Passenger_ID, F_Name, M_Name, L_Name, Passenger_name, DOB
 VALUES 
   -- 6E1862
   (1, 'John', 'A', 'Doe', 'John A Doe', '1990-01-01', '123 Street A', '6E1862', 'Normal'),
-  (2, 'Jane', 'B', 'Smith', 'Jane B Smith', '1988-02-02', '456 Street B', '6E1862', 'Flagged'),
-  (3, 'Mike', NULL, 'Brown', 'Mike Brown', '1991-03-03', '789 Street C', '6E1862', 'Normal'),
+  (2, 'Jane', 'B', 'Smith', 'Jane B Smith', '1988-02-02', '456 Street B', '6E1862', 'baggage overweight'),
+  (3, 'Mike', NULL, 'Brown', 'Mike Brown', '1991-03-03', '789 Street C', '6E1862', 'illness'),
   (4, 'Alice', 'C', 'White', 'Alice C White', '1992-04-04', '321 Street D', '6E1862', 'Normal'),
   (5, 'Bob', NULL, 'Green', 'Bob Green', '1989-05-05', '654 Street E', '6E1862', 'Normal'),
 
   -- IX1345
   (6, 'Lily', 'D', 'Jones', 'Lily D Jones', '1993-06-06', '111 Second St', 'IX1345', 'Normal'),
-  (7, 'Tom', NULL, 'King', 'Tom King', '1987-07-07', '222 Third St', 'IX1345', 'Flagged'),
+  (7, 'Tom', NULL, 'King', 'Tom King', '1987-07-07', '222 Third St', 'IX1345', 'baggage overweight'),
   (8, 'Emma', 'E', 'Scott', 'Emma E Scott', '1994-08-08', '333 Fourth St', 'IX1345', 'Normal'),
   (9, 'David', NULL, 'Lee', 'David Lee', '1990-09-09', '444 Fifth St', 'IX1345', 'Normal'),
-  (10, 'Eva', 'F', 'Clark', 'Eva F Clark', '1985-10-10', '555 Sixth St', 'IX1345', 'Normal'),
+  (10, 'Eva', 'F', 'Clark', 'Eva F Clark', '1985-10-10', '555 Sixth St', 'IX1345', 'Theft'),
 
   -- SR101
-  (11, 'James', 'G', 'Hill', 'James G Hill', '1991-11-11', '666 Seventh St', 'SR101', 'Normal'),
+  (11, 'James', 'G', 'Hill', 'James G Hill', '1991-11-11', '666 Seventh St', 'SR101', 'illness'),
   (12, 'Sophia', NULL, 'Young', 'Sophia Young', '1988-12-12', '777 Eighth St', 'SR101', 'Normal'),
-  (13, 'Chris', 'H', 'Walker', 'Chris H Walker', '1992-01-13', '888 Ninth St', 'SR101', 'Flagged'),
+  (13, 'Chris', 'H', 'Walker', 'Chris H Walker', '1992-01-13', '888 Ninth St', 'SR101', 'baggage overweight'),
   (14, 'Grace', NULL, 'White', 'Grace White', '1990-02-14', '999 Tenth St', 'SR101', 'Normal'),
   (15, 'Kyle', 'I', 'Hall', 'Kyle I Hall', '1987-03-15', '1011 Eleventh St', 'SR101', 'Normal'),
 
   -- SG356
-  (16, 'Megan', NULL, 'Wright', 'Megan Wright', '1993-04-16', '1212 Twelfth St', 'SG356', 'Flagged'),
+  (16, 'Megan', NULL, 'Wright', 'Megan Wright', '1993-04-16', '1212 Twelfth St', 'SG356', 'baggage overweight'),
   (17, 'Ryan', 'J', 'Green', 'Ryan J Green', '1989-05-17', '1313 Thirteenth St', 'SG356', 'Normal'),
   (18, 'Ella', NULL, 'King', 'Ella King', '1991-06-18', '1414 Fourteenth St', 'SG356', 'Normal'),
-  (19, 'Jacob', 'K', 'Hill', 'Jacob K Hill', '1990-07-19', '1515 Fifteenth St', 'SG356', 'Normal'),
+  (19, 'Jacob', 'K', 'Hill', 'Jacob K Hill', '1990-07-19', '1515 Fifteenth St', 'SG356', 'theft'),
   (20, 'Anna', NULL, 'Scott', 'Anna Scott', '1988-08-20', '1616 Sixteenth St', 'SG356', 'Normal'),
 
   -- AK789
   (21, 'Nate', 'L', 'Young', 'Nate L Young', '1992-09-21', '1717 Seventeenth St', 'AK789', 'Normal'),
-  (22, 'Zoe', NULL, 'Adams', 'Zoe Adams', '1987-10-22', '1818 Eighteenth St', 'AK789', 'Flagged'),
+  (22, 'Zoe', NULL, 'Adams', 'Zoe Adams', '1987-10-22', '1818 Eighteenth St', 'AK789', 'baggage overweight'),
   (23, 'Owen', 'M', 'Clark', 'Owen M Clark', '1990-11-23', '1919 Nineteenth St', 'AK789', 'Normal'),
   (24, 'Chloe', NULL, 'Lewis', 'Chloe Lewis', '1991-12-24', '2020 Twentieth St', 'AK789', 'Normal'),
   (25, 'Ethan', 'N', 'Walker', 'Ethan N Walker', '1988-01-25', '2121 TwentyFirst St', 'AK789', 'Normal'),
@@ -488,33 +488,33 @@ VALUES
   -- 6E1234
   (26, 'Mia', 'O', 'Roberts', 'Mia O Roberts', '1993-02-26', '2222 TwentySecond St', '6E1234', 'Normal'),
   (27, 'Liam', NULL, 'Walker', 'Liam Walker', '1991-03-27', '2323 TwentyThird St', '6E1234', 'Normal'),
-  (28, 'Sophia', 'P', 'Hall', 'Sophia P Hall', '1990-04-28', '2424 TwentyFourth St', '6E1234', 'Flagged'),
+  (28, 'Sophia', 'P', 'Hall', 'Sophia P Hall', '1990-04-28', '2424 TwentyFourth St', '6E1234', 'baggage overweight'),
   (29, 'Mason', NULL, 'King', 'Mason King', '1988-05-29', '2525 TwentyFifth St', '6E1234', 'Normal'),
   (30, 'Emma', 'Q', 'Hill', 'Emma Q Hill', '1992-06-30', '2626 TwentySixth St', '6E1234', 'Normal'),
 
   -- IX5432
   (31, 'Oliver', 'R', 'Scott', 'Oliver R Scott', '1989-07-31', '2727 TwentySeventh St', 'IX5432', 'Normal'),
   (32, 'Ava', NULL, 'Green', 'Ava Green', '1990-08-01', '2828 TwentyEighth St', 'IX5432', 'Normal'),
-  (33, 'Elijah', 'S', 'Brown', 'Elijah S Brown', '1991-09-02', '2929 TwentyNinth St', 'IX5432', 'Flagged'),
+  (33, 'Elijah', 'S', 'Brown', 'Elijah S Brown', '1991-09-02', '2929 TwentyNinth St', 'IX5432', 'baggage overweight'),
   (34, 'Isabella', NULL, 'White', 'Isabella White', '1992-10-03', '3030 Thirtieth St', 'IX5432', 'Normal'),
   (35, 'James', 'T', 'Taylor', 'James T Taylor', '1988-11-04', '3131 ThirtyFirst St', 'IX5432', 'Normal'),
 
   -- SR202
   (36, 'Charlotte', 'U', 'Harris', 'Charlotte U Harris', '1993-12-05', '3232 ThirtySecond St', 'SR202', 'Normal'),
   (37, 'Benjamin', NULL, 'Martin', 'Benjamin Martin', '1991-01-06', '3333 ThirtyThird St', 'SR202', 'Normal'),
-  (38, 'Amelia', 'V', 'Thompson', 'Amelia V Thompson', '1990-02-07', '3434 ThirtyFourth St', 'SR202', 'Flagged'),
+  (38, 'Amelia', 'V', 'Thompson', 'Amelia V Thompson', '1990-02-07', '3434 ThirtyFourth St', 'SR202', 'baggage overweight'),
   (39, 'Evelyn', NULL, 'Garcia', 'Evelyn Garcia', '1989-03-08', '3535 ThirtyFifth St', 'SR202', 'Normal'),
   (40, 'Logan', 'W', 'Martinez', 'Logan W Martinez', '1992-04-09', '3636 ThirtySixth St', 'SR202', 'Normal'),
 
   -- SG789
   (41, 'Harper', NULL, 'Robinson', 'Harper Robinson', '1993-05-10', '3737 ThirtySeventh St', 'SG789', 'Normal'),
-  (42, 'Jackson', 'X', 'Clark', 'Jackson X Clark', '1991-06-11', '3838 ThirtyEighth St', 'SG789', 'Flagged'),
+  (42, 'Jackson', 'X', 'Clark', 'Jackson X Clark', '1991-06-11', '3838 ThirtyEighth St', 'SG789', 'baggage overweight'),
   (43, 'Mila', NULL, 'Rodriguez', 'Mila Rodriguez', '1990-07-12', '3939 ThirtyNinth St', 'SG789', 'Normal'),
   (44, 'Sebastian', 'Y', 'Lewis', 'Sebastian Y Lewis', '1989-08-13', '4040 Fortieth St', 'SG789', 'Normal'),
   (45, 'Ella', NULL, 'Lee', 'Ella Lee', '1992-09-14', '4141 FortyFirst St', 'SG789', 'Normal'),
 
   -- AK456
-  (46, 'Zachary', 'Z', 'Walker', 'Zachary Z Walker', '1993-10-15', '4242 FortySecond St', 'AK456', 'Flagged'),
+  (46, 'Zachary', 'Z', 'Walker', 'Zachary Z Walker', '1993-10-15', '4242 FortySecond St', 'AK456', 'baggage overweight'),
   (47, 'Victoria', NULL, 'Wright', 'Victoria Wright', '1991-11-16', '4343 FortyThird St', 'AK456', 'Normal'),
   (48, 'Nathan', 'A', 'Hill', 'Nathan A Hill', '1990-12-17', '4444 FortyFourth St', 'AK456', 'Normal'),
   (49, 'Luna', NULL, 'Scott', 'Luna Scott', '1989-01-18', '4545 FortyFifth St', 'AK456', 'Normal'),
@@ -622,20 +622,132 @@ INSERT INTO Ticket (Ticket_no, Price, Seat_No, Booking_date, Flight_no, Passenge
 ('T049', 14600.00, '30D', '2025-02-27', 'AK456', 49),
 ('T050', 14800.00, '30E', '2025-02-28', 'AK456', 50);
 
+-- Baggage records for each passenger (one per passenger) 
+INSERT INTO Baggage (Baggage_ID, Baggae_weight, Baggage_status, Passenger_ID, Flight_no) VALUES
+-- 6E1862
+(1, 25.5, 'Loaded', 1, '6E1862'),
+(2, 32.2, 'Special Check', 2, '6E1862'), -- flagged, overweight
+(3, 21.7, 'Loaded', 3, '6E1862'),
+(4, 29.3, 'Loaded', 4, '6E1862'),
+(5, 27.0, 'Loaded', 5, '6E1862'),
+
+-- IX1345
+(6, 24.1, 'Loaded', 6, 'IX1345'),
+(7, 33.5, 'Special Check', 7, 'IX1345'), -- flagged, overweight
+(8, 28.4, 'Loaded', 8, 'IX1345'),
+(9, 30.0, 'Loaded', 9, 'IX1345'),
+(10, 22.9, 'Loaded', 10, 'IX1345'),
+
+-- SR101
+(11, 27.4, 'Loaded', 11, 'SR101'),
+(12, 23.3, 'Loaded', 12, 'SR101'),
+(13, 35.8, 'Special Check', 13, 'SR101'), -- flagged, overweight
+(14, 26.5, 'Loaded', 14, 'SR101'),
+(15, 31.2, 'Loaded', 15, 'SR101'),
+
+-- SG356
+(16, 36.1, 'Special Check', 16, 'SG356'), -- flagged, overweight
+(17, 29.4, 'Loaded', 17, 'SG356'),
+(18, 25.9, 'Loaded', 18, 'SG356'),
+(19, 27.8, 'Loaded', 19, 'SG356'),
+(20, 24.7, 'Loaded', 20, 'SG356'),
+
+-- AK789
+(21, 28.5, 'Loaded', 21, 'AK789'),
+(22, 33.8, 'Special Check', 22, 'AK789'), -- flagged, overweight
+(23, 26.2, 'Loaded', 23, 'AK789'),
+(24, 22.3, 'Loaded', 24, 'AK789'),
+(25, 23.9, 'Loaded', 25, 'AK789'),
+
+-- 6E1234
+(26, 30.1, 'Loaded', 26, '6E1234'),
+(27, 24.4, 'Loaded', 27, '6E1234'),
+(28, 34.5, 'Special Check', 28, '6E1234'), -- flagged, overweight
+(29, 26.1, 'Loaded', 29, '6E1234'),
+(30, 28.6, 'Loaded', 30, '6E1234'),
+
+-- IX5432
+(31, 20.9, 'Loaded', 31, 'IX5432'),
+(32, 23.7, 'Loaded', 32, 'IX5432'),
+(33, 36.4, 'Special Check', 33, 'IX5432'), -- flagged, overweight
+(34, 27.3, 'Loaded', 34, 'IX5432'),
+(35, 28.2, 'Loaded', 35, 'IX5432'),
+
+-- SR202
+(36, 29.1, 'Loaded', 36, 'SR202'),
+(37, 28.9, 'Loaded', 37, 'SR202'),
+(38, 33.1, 'Special Check', 38, 'SR202'), -- flagged, overweight
+(39, 27.6, 'Loaded', 39, 'SR202'),
+(40, 26.7, 'Loaded', 40, 'SR202'),
+
+-- SG789
+(41, 22.0, 'Loaded', 41, 'SG789'),
+(42, 34.9, 'Special Check', 42, 'SG789'), -- flagged, overweight
+(43, 27.0, 'Loaded', 43, 'SG789'),
+(44, 23.2, 'Loaded', 44, 'SG789'),
+(45, 21.3, 'Loaded', 45, 'SG789'),
+
+-- AK456
+(46, 38.2, 'Special Check', 46, 'AK456'), -- flagged, overweight
+(47, 27.2, 'Loaded', 47, 'AK456'),
+(48, 26.4, 'Loaded', 48, 'AK456'),
+(49, 23.1, 'Loaded', 49, 'AK456'),
+(50, 21.9, 'Loaded', 50, 'AK456');
 
 
--- Triggers
+-- Trigger for deleting employee
 DELIMITER $$
 
 CREATE TRIGGER after_crew_delete
 AFTER DELETE ON Crew
 FOR EACH ROW
 BEGIN
-    -- Delete the corresponding employee only if they are no longer in any crew
-    -- (i.e., not assigned to any other flight)
     DELETE FROM Employee 
     WHERE Employee_ID = OLD.Employee_ID 
       AND Employee_ID NOT IN (SELECT DISTINCT Employee_ID FROM Crew WHERE Employee_ID = OLD.Employee_ID);
 END$$
 
 DELIMITER ;
+
+-- Trigger for updating passenger
+DELIMITER $$
+
+CREATE TRIGGER UpdatePassengerStatusAfterBaggageUpdate
+AFTER UPDATE ON Baggage
+FOR EACH ROW
+BEGIN
+  IF NEW.Baggae_weight < 33 THEN
+    UPDATE Passenger
+    SET Passenger_status = 'Normal'
+    WHERE Passenger_ID = NEW.Passenger_ID;
+  END IF;
+END$$
+
+DELIMITER ;
+
+
+
+-- Function to get average salary
+DROP FUNCTION IF EXISTS GetAverageSalary;
+DELIMITER $$
+CREATE FUNCTION GetAverageSalary()
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE avgSalary INT DEFAULT 0;
+    SELECT IFNULL(AVG(Employee_Salary), 0) INTO avgSalary FROM Employee;
+    RETURN avgSalary;
+END $$
+DELIMITER ;
+
+-- Procedure to get employee stats
+DELIMITER $$
+CREATE PROCEDURE GetEmployeeStats()
+BEGIN
+  SELECT Job_title, COUNT(*) AS emp_count, SUM(Employee_Salary) AS total_salary
+  FROM Employee
+  GROUP BY Job_title;
+END$$
+DELIMITER ;
+
+
