@@ -3,8 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db, engine
+from pydantic import BaseModel
 
 app = FastAPI(title="Airport Management System API")
+
+class StatusUpdate(BaseModel):
+    status: str
 
 app.add_middleware(
     CORSMiddleware,
@@ -73,22 +77,18 @@ def get_flight_traffic_report(db: Session = Depends(get_db)):
 @app.get("/api/reports/employee-stats")
 def get_employee_report(db: Session = Depends(get_db)):
     try:
-        employees = db.execute(text("SELECT * FROM Employee")).fetchall()
-        job_stats = {}
-        total_salary = 0
+        # Call the stored procedure
+        results = db.execute(text("CALL GetEmployeeStats()")).fetchall()
 
-        for emp in employees:
-            job_title = emp.Job_title
-            if job_title not in job_stats:
-                job_stats[job_title] = {"count": 0, "total_salary": 0}
-            job_stats[job_title]["count"] += 1
-            job_stats[job_title]["total_salary"] += emp.Employee_Salary
-            total_salary += emp.Employee_Salary
+        job_stats = {row.Job_title: {"count": row.emp_count, "total_salary": row.total_salary} for row in results}
+        total_employees = sum(row.emp_count for row in results)
+        total_salary = sum(row.total_salary for row in results)
 
-        avg_salary = total_salary // len(employees) if employees else 0
+        avg_salary_row = db.execute(text("SELECT GetAverageSalary() AS avg_salary")).fetchone()
+        avg_salary = avg_salary_row.avg_salary if avg_salary_row else 0
 
         return {
-            "total_employees": len(employees),
+            "total_employees": total_employees,
             "total_salary_expense": total_salary,
             "average_salary": avg_salary,
             "job_breakdown": job_stats
@@ -96,6 +96,8 @@ def get_employee_report(db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
 
 @app.get("/api/reports/passenger-traffic")
 def get_passenger_traffic_report(db: Session = Depends(get_db)):
@@ -237,6 +239,17 @@ def delete_employee(employee_id: int, db: Session = Depends(get_db)):
         db.rollback()
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/api/employees/average-salary")
+def get_average_salary(db: Session = Depends(get_db)):
+    try:
+        result = db.execute(text("SELECT GetAverageSalary() AS average_salary")).fetchone()
+        avg_salary = result.average_salary if result else 0
+        return {"average_salary": avg_salary}
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/api/crew")
 def get_crew(db: Session = Depends(get_db)):
@@ -367,6 +380,7 @@ def get_passengers_for_flight(flight_no: str, db: Session = Depends(get_db)):
                 "Passenger_ID": p.Passenger_ID,
                 "Passenger_name": p.Passenger_name,
                 "Passenger_status": p.Passenger_status or "Normal",
+                "baggage_weight": baggage.Baggae_weight if baggage else None,
                 "baggage_id": baggage.Baggage_ID if baggage else None,
                 "ticket_id": ticket.Ticket_no if ticket else None,
             })
@@ -378,6 +392,7 @@ def get_passengers_for_flight(flight_no: str, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.delete("/api/passenger/{passenger_id}")
 def delete_passenger(passenger_id: int, db: Session = Depends(get_db)):
@@ -396,10 +411,10 @@ def delete_passenger(passenger_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.put("/api/passenger/{passenger_id}/status")
-def update_passenger_status(passenger_id: int, status: str, db: Session = Depends(get_db)):
+def update_passenger_status(passenger_id: int, status_update: StatusUpdate, db: Session = Depends(get_db)):
     try:
         update_query = text("UPDATE Passenger SET Passenger_status = :status WHERE Passenger_ID = :id")
-        result = db.execute(update_query, {"status": status, "id": passenger_id})
+        result = db.execute(update_query, {"status": status_update.status, "id": passenger_id})
         if result.rowcount == 0:
             raise HTTPException(status_code=404, detail="Passenger not found")
         db.commit()
