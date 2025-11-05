@@ -302,7 +302,18 @@ INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hir
 (4002, 'Arun', 'L', 'Gupta', 'Arun L Gupta', '2021-02-14', 56000, 'Immigration Handler', 'BLR', 0, NULL),
 (4003, 'Divya', 'S', 'Menon', 'Divya S Menon', '2021-03-18', 54000, 'Immigration Handler', 'BLR', 0, NULL),
 (4004, 'Rohan', 'A', 'Joshi', 'Rohan A Joshi', '2021-04-22', 57000, 'Immigration Handler', 'BLR', 0, NULL),
-(4005, 'Kavya', 'R', 'Bhat', 'Kavya R Bhat', '2021-05-28', 55500, 'Immigration Handler', 'BLR', 0, NULL);
+(4005, 'Kavya', 'R', 'Bhat', 'Kavya R Bhat', '2021-05-28', 55500, 'Immigration Handler', 'BLR', 0, NULL),
+(4006, 'Priya', 'N', 'Sharma', 'Priya N Sharma', '2021-06-15', 56500, 'Immigration Handler', 'BLR', 0, NULL),
+(4007, 'Vikram', 'K', 'Reddy', 'Vikram K Reddy', '2021-07-20', 55800, 'Immigration Handler', 'BLR', 0, NULL),
+(4008, 'Ananya', 'M', 'Iyer', 'Ananya M Iyer', '2021-08-12', 54500, 'Immigration Handler', 'BLR', 0, NULL),
+(4009, 'Karthik', 'P', 'Nair', 'Karthik P Nair', '2021-09-05', 57200, 'Immigration Handler', 'BLR', 0, NULL),
+(4010, 'Sneha', 'V', 'Pillai', 'Sneha V Pillai', '2021-10-18', 55300, 'Immigration Handler', 'BLR', 0, NULL);
+
+-- Medical staff
+INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID, Assign, pwd) VALUES
+(9001, 'Arjun', 'M', 'Verma', 'Arjun M Verma', '2020-06-10', 50000, 'Medical staff', 'BLR', 0, NULL),
+(9002, 'Pooja', 'K', 'Saxena', 'Pooja K Saxena', '2020-07-15', 51000, 'Medical staff', 'BLR', 0, NULL),
+(9003, 'Rahul', 'T', 'Pandey', 'Rahul T Pandey', '2020-08-20', 49500, 'Medical staffs', 'BLR', 0, NULL);
 
 -- 5. Security Handlers (5 employees, no password)
 INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID, Assign, pwd) VALUES
@@ -742,6 +753,7 @@ DELIMITER ;
 
 -- Procedure to get employee stats
 DELIMITER $$
+DROP PROCEDURE IF EXISTS GetEmployeeStats;
 CREATE PROCEDURE GetEmployeeStats()
 BEGIN
   SELECT Job_title, COUNT(*) AS emp_count, SUM(Employee_Salary) AS total_salary
