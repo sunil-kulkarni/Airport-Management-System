@@ -50,7 +50,7 @@ CREATE TABLE Employee (
 );
 
 
--- 5. Flight Table (Gate assigned to Flight)
+-- 5. Flight Table 
 CREATE TABLE Flight (
     Flight_no VARCHAR(20) NOT NULL,
     Airline_name VARCHAR(255),
@@ -80,7 +80,7 @@ CREATE TABLE Passenger (
     PRIMARY KEY (Passenger_ID)
 );
 
--- 7. Gate Table (no longer references Flight)
+-- 7. Gate Table 
 CREATE TABLE Gate (
     Gate_no VARCHAR(10) NOT NULL,
     Airport_ID VARCHAR(3) NOT NULL,
@@ -147,8 +147,6 @@ CREATE TABLE Passenger_phone (
 );
 
 -- FOREIGN KEYS
--- FOREIGN KEYS with ON DELETE CASCADE ON UPDATE CASCADE
-
 ALTER TABLE Aircraft 
     ADD CONSTRAINT fk_aircraft_airline FOREIGN KEY (Airline_ID) REFERENCES Airline(Airline_ID)
     ON DELETE CASCADE ON UPDATE CASCADE;
@@ -205,11 +203,9 @@ ALTER TABLE Passenger_phone
     ADD CONSTRAINT fk_phone_passenger FOREIGN KEY (Passenger_ID) REFERENCES Passenger(Passenger_ID)
     ON DELETE CASCADE ON UPDATE CASCADE;
 
--- =====================================================
--- DML COMMANDS - INSERT SAMPLE DATA
--- =====================================================
 
--- Insert Airlines (5 airlines)
+-- DML COMMANDS 
+-- Insert Airlines 
 INSERT INTO Airline (Airline_ID, Airline_name, Headquarters_location) VALUES
 (1, 'IndiGo', 'Gurugram, India'),
 (2, 'Air India', 'New Delhi, India'),
@@ -217,7 +213,7 @@ INSERT INTO Airline (Airline_ID, Airline_name, Headquarters_location) VALUES
 (4, 'SpiceJet', 'Gurugram, India'),
 (5, 'Akasa Air', 'Mumbai, India');
 
--- Insert Airports (6 airports)
+-- Insert Airports 
 INSERT INTO Airport (Airport_ID, Airport_location, IATA_code, Airport_name, Airport_timezone) VALUES
 ('BLR', 'Bengaluru', 'BLR', 'Kempegowda International Airport', 'Asia/Kolkata'),
 ('HYD', 'Hyderabad', 'HYD', 'Rajiv Gandhi International Airport', 'Asia/Kolkata'),
@@ -226,7 +222,7 @@ INSERT INTO Airport (Airport_ID, Airport_location, IATA_code, Airport_name, Airp
 ('MAA', 'Chennai', 'MAA', 'Chennai International Airport', 'Asia/Kolkata'),
 ('CCU', 'Kolkata', 'CCU', 'Netaji Subhas Chandra Bose International Airport', 'Asia/Kolkata');
 
--- Insert Gates (3 gates, 2 terminals per airport, total 36 gates)
+-- Insert Gates 
 INSERT INTO Gate (Gate_no, Airport_ID, Terminal) VALUES
 -- Bengaluru gates
 ('G01', 'BLR', 1), ('G02', 'BLR', 1), ('G03', 'BLR', 1),
@@ -252,16 +248,16 @@ INSERT INTO Gate (Gate_no, Airport_ID, Terminal) VALUES
 ('G01', 'CCU', 1), ('G02', 'CCU', 1), ('G03', 'CCU', 1),
 ('G04', 'CCU', 2), ('G05', 'CCU', 2), ('G06', 'CCU', 2);
 
--- Insert Flights (only two statuses: 'Arrival' and 'Departure')
+-- Insert Flights 
 INSERT INTO Flight (Flight_no, Airline_name, Flight_status, arrival_time, Airport_ID, Airline_ID, Gate_no, Terminal, src_city, des_city) VALUES
--- Arrival Flights: destination = airport city
+-- Arrival Flights
 ('6E1862', 'IndiGo', 'Arrival', '16:50:00', 'BLR', 1, 'G01', 1, 'Mauritius', 'Bengaluru'),
 ('IX1345', 'Air India', 'Arrival', '16:55:00', 'BLR', 2, 'G02', 1, 'Hyderabad', 'Bengaluru'),
 ('SR101', 'Star Air', 'Arrival', '17:10:00', 'BLR', 3, 'G04', 2, 'Chennai', 'Bengaluru'),
 ('SG356', 'SpiceJet', 'Arrival', '17:20:00', 'BLR', 4, 'G05', 2, 'Mumbai', 'Bengaluru'),
 ('AK789', 'Akasa Air', 'Arrival', '17:35:00', 'BLR', 5, 'G06', 2, 'Kolkata', 'Bengaluru'),
 
--- Departure Flights: source = airport city
+-- Departure Flights 
 ('6E1234', 'IndiGo', 'Departure', '18:30:00', 'BLR', 1, 'G03', 1, 'Bengaluru', 'Delhi'),
 ('IX5432', 'Air India', 'Departure', '18:45:00', 'BLR', 2, 'G01', 1, 'Bengaluru', 'Hyderabad'),
 ('SR202', 'Star Air', 'Departure', '19:00:00', 'BLR', 3, 'G02', 1, 'Bengaluru', 'Mumbai'),
@@ -274,13 +270,13 @@ INSERT INTO Aircraft (Aircraft_ID, capacity, Manufacturer, Model, Airline_ID) VA
 ('VT-IFZ', 180, 'Airbus', 'A320neo', 1),
 ('VT-AXJ', 238, 'Boeing', '737-800', 3);
 
--- Insert Employees (now 41 total: 1 head + 5 of each of 8 types)
+-- Insert Employees 
 
--- 1. Airport Head of Staff (with password)
+-- 1. Airport Head of Staff 
 INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID, Assign, pwd) VALUES
 (1001, 'abc', 'K', 'Kumar', 'Rajesh K Kumar', '2020-01-15', 150000, 'Airport Head of Staff', 'BLR',0, 'admin123');
 
--- 2. Check-in Handlers (5 employees, no password)
+-- 2. Check-in Handlers 
 INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID,Assign, pwd) VALUES
 (2001, 'Priya', 'S', 'Sharma', 'Priya S Sharma', '2021-03-20', 45000, 'Check-in Handler', 'BLR', 0, NULL),
 (2002, 'Amit', 'R', 'Singh', 'Amit R Singh', '2021-04-10', 45000, 'Check-in Handler', 'BLR', 0, NULL),
@@ -288,7 +284,7 @@ INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hir
 (2004, 'Vikram', 'J', 'Reddy', 'Vikram J Reddy', '2021-06-20', 45500, 'Check-in Handler', 'BLR', 0, NULL),
 (2005, 'Anjali', 'T', 'Nair', 'Anjali T Nair', '2021-07-12', 47000, 'Check-in Handler', 'BLR', 0, NULL);
 
--- 3. Ground Engineers (5 employees, no password)
+-- 3. Ground Engineers 
 INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID, Assign, pwd) VALUES
 (3001, 'Karthik', 'P', 'Murthy', 'Karthik P Murthy', '2020-08-15', 65000, 'Ground Engineer', 'BLR', 0, NULL),
 (3002, 'Deepa', 'V', 'Iyer', 'Deepa V Iyer', '2020-09-20', 67000, 'Ground Engineer', 'BLR', 0, NULL),
@@ -296,7 +292,7 @@ INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hir
 (3004, 'Lakshmi', 'B', 'Rao', 'Lakshmi B Rao', '2020-11-18', 68000, 'Ground Engineer', 'BLR', 0, NULL),
 (3005, 'Suresh', 'K', 'Pillai', 'Suresh K Pillai', '2020-12-22', 70000, 'Ground Engineer', 'BLR', 0, NULL);
 
--- 4. Immigration Handlers (5 employees, no password)
+-- 4. Immigration Handlers 
 INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID, Assign, pwd) VALUES
 (4001, 'Meera', 'D', 'Khanna', 'Meera D Khanna', '2021-01-10', 55000, 'Immigration Handler', 'BLR', 0, NULL),
 (4002, 'Arun', 'L', 'Gupta', 'Arun L Gupta', '2021-02-14', 56000, 'Immigration Handler', 'BLR', 0, NULL),
@@ -315,7 +311,7 @@ INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hir
 (9002, 'Pooja', 'K', 'Saxena', 'Pooja K Saxena', '2020-07-15', 51000, 'Medical staff', 'BLR', 0, NULL),
 (9003, 'Rahul', 'T', 'Pandey', 'Rahul T Pandey', '2020-08-20', 49500, 'Medical staffs', 'BLR', 0, NULL);
 
--- 5. Security Handlers (5 employees, no password)
+-- 5. Security Handlers 
 INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID, Assign, pwd) VALUES
 (5001, 'Arjun', 'M', 'Verma', 'Arjun M Verma', '2020-06-10', 50000, 'Security Handler', 'BLR', 0, NULL),
 (5002, 'Pooja', 'K', 'Saxena', 'Pooja K Saxena', '2020-07-15', 51000, 'Security Handler', 'BLR', 0, NULL),
@@ -323,7 +319,7 @@ INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hir
 (5004, 'Nisha', 'B', 'Shetty', 'Nisha B Shetty', '2020-09-25', 52000, 'Security Handler', 'BLR', 0, NULL),
 (5005, 'Manish', 'V', 'Shah', 'Manish V Shah', '2020-10-30', 50500, 'Security Handler', 'BLR', 0, NULL);
 
--- 6. Retail Staff (5 employees, no password)
+-- 6. Retail Staff 
 INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID, Assign, pwd) VALUES
 (6001, 'Swati', 'P', 'Mehta', 'Swati P Mehta', '2022-01-15', 35000, 'Retail Staff', 'BLR', 0, NULL),
 (6002, 'Nikhil', 'R', 'Agarwal', 'Nikhil R Agarwal', '2022-02-20', 36000, 'Retail Staff', 'BLR', 0, NULL),
@@ -331,7 +327,7 @@ INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hir
 (6004, 'Siddharth', 'K', 'Malhotra', 'Siddharth K Malhotra', '2022-04-18', 37000, 'Retail Staff', 'BLR', 0, NULL),
 (6005, 'Ritu', 'M', 'Kapoor', 'Ritu M Kapoor', '2022-05-22', 35500, 'Retail Staff', 'BLR', 0, NULL);
 
--- Additional 20 pilots
+
 INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID, Assign, pwd) VALUES
 (7011, 'Ajinkya', 'S', 'Patil', 'Ajinkya S Patil', '2018-01-05', 185000, 'Pilot', 'BLR', 0, NULL),
 (7012, 'Melissa', 'K', 'Reed', 'Melissa K Reed', '2018-02-10', 188000, 'Pilot', 'BLR', 0, NULL),
@@ -355,7 +351,7 @@ INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hir
 (7030, 'Angela', 'F', 'Lewis', 'Angela F Lewis', '2019-08-20', 186000, 'Pilot', 'BLR', 0, NULL);
 
 
--- Additional 30 flight attendants
+
 INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID, Assign, pwd) VALUES
 (8011, 'Anna', 'M', 'Walker', 'Anna M Walker', '2022-01-01', 65000, 'Flight Attendant', 'BLR', 0, NULL),
 (8012, 'James', 'S', 'Hall', 'James S Hall', '2022-01-05', 63000, 'Flight Attendant', 'BLR', 0, NULL),
@@ -390,7 +386,7 @@ INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hir
 
 
 
--- Insert all pilots into Crew as 'Pilot' with Crew_ID and null Flight_no
+-- Insert crew
 INSERT INTO Crew (Crew_ID, Crew_role, Employee_ID, Flight_no) VALUES
 (4001, 'Pilot', 7011, NULL),
 (4002, 'Pilot', 7012, NULL),
@@ -413,7 +409,6 @@ INSERT INTO Crew (Crew_ID, Crew_role, Employee_ID, Flight_no) VALUES
 (4019, 'Pilot', 7029, NULL),
 (4020, 'Pilot', 7030, NULL);
 
--- Insert all flight attendants with Crew_ID, null Flight_no
 INSERT INTO Crew (Crew_ID, Crew_role, Employee_ID, Flight_no) VALUES
 (5001, 'Flight Attendant', 8011, NULL),
 (5002, 'Flight Attendant', 8012, NULL),
@@ -532,7 +527,7 @@ VALUES
   (50, 'Sebastian', 'B', 'King', 'Sebastian B King', '1992-02-19', '4646 FortySixth St', 'AK456', 'Normal');
 
 
--- Boards Table: Each passenger boards their assigned flight
+-- Boards Table
 INSERT INTO Boards (Passenger_ID, Flight_no) VALUES 
 (1, '6E1862'), (2, '6E1862'), (3, '6E1862'), (4, '6E1862'), (5, '6E1862'),
 (6, 'IX1345'), (7, 'IX1345'), (8, 'IX1345'), (9, 'IX1345'), (10, 'IX1345'),
@@ -545,7 +540,7 @@ INSERT INTO Boards (Passenger_ID, Flight_no) VALUES
 (41, 'SG789'), (42, 'SG789'), (43, 'SG789'), (44, 'SG789'), (45, 'SG789'),
 (46, 'AK456'), (47, 'AK456'), (48, 'AK456'), (49, 'AK456'), (50, 'AK456');
 
--- Passenger_Email Table: Assign emails matching passenger IDs
+-- Passenger_Email Table
 INSERT INTO Passenger_Email (Passenger_ID, Passenger_email) VALUES
 (1, 'john.doe@example.com'), (2, 'jane.smith@example.com'), (3, 'mike.brown@example.com'), (4, 'alice.white@example.com'), (5, 'bob.green@example.com'),
 (6, 'lily.jones@example.com'), (7, 'tom.king@example.com'), (8, 'emma.scott@example.com'), (9, 'david.lee@example.com'), (10, 'eva.clark@example.com'),
@@ -558,7 +553,7 @@ INSERT INTO Passenger_Email (Passenger_ID, Passenger_email) VALUES
 (41, 'harper.robinson@example.com'), (42, 'jackson.clark@example.com'), (43, 'mila.rodriguez@example.com'), (44, 'sebastian.lewis@example.com'), (45, 'ella.lee@example.com'),
 (46, 'zachary.walker@example.com'), (47, 'victoria.wright@example.com'), (48, 'nathan.hill@example.com'), (49, 'luna.scott@example.com'), (50, 'sebastian.king@example.com');
 
--- Passenger_phone Table: Assign dummy phone numbers
+-- Passenger_phone Table
 INSERT INTO Passenger_phone (Passenger_ID, Passenger_phone) VALUES
 (1, 9123456001), (2, 9123456002), (3, 9123456003), (4, 9123456004), (5, 9123456005),
 (6, 9123456006), (7, 9123456007), (8, 9123456008), (9, 9123456009), (10, 9123456010),
@@ -571,7 +566,7 @@ INSERT INTO Passenger_phone (Passenger_ID, Passenger_phone) VALUES
 (41, 9123456041), (42, 9123456042), (43, 9123456043), (44, 9123456044), (45, 9123456045),
 (46, 9123456046), (47, 9123456047), (48, 9123456048), (49, 9123456049), (50, 9123456050);
 
--- Ticket Table: assign tickets per passenger with dummy data
+-- Ticket Table
 INSERT INTO Ticket (Ticket_no, Price, Seat_No, Booking_date, Flight_no, Passenger_ID) VALUES
 ('T001', 5000.00, '12A', '2025-01-10', '6E1862', 1),
 ('T002', 5200.00, '12B', '2025-01-11', '6E1862', 2),
@@ -633,18 +628,18 @@ INSERT INTO Ticket (Ticket_no, Price, Seat_No, Booking_date, Flight_no, Passenge
 ('T049', 14600.00, '30D', '2025-02-27', 'AK456', 49),
 ('T050', 14800.00, '30E', '2025-02-28', 'AK456', 50);
 
--- Baggage records for each passenger (one per passenger) 
+-- Baggage records for each passenger 
 INSERT INTO Baggage (Baggage_ID, Baggae_weight, Baggage_status, Passenger_ID, Flight_no) VALUES
 -- 6E1862
 (1, 25.5, 'Loaded', 1, '6E1862'),
-(2, 32.2, 'Special Check', 2, '6E1862'), -- flagged, overweight
+(2, 32.2, 'Special Check', 2, '6E1862'), 
 (3, 21.7, 'Loaded', 3, '6E1862'),
 (4, 29.3, 'Loaded', 4, '6E1862'),
 (5, 27.0, 'Loaded', 5, '6E1862'),
 
 -- IX1345
 (6, 24.1, 'Loaded', 6, 'IX1345'),
-(7, 33.5, 'Special Check', 7, 'IX1345'), -- flagged, overweight
+(7, 33.5, 'Special Check', 7, 'IX1345'), 
 (8, 28.4, 'Loaded', 8, 'IX1345'),
 (9, 30.0, 'Loaded', 9, 'IX1345'),
 (10, 22.9, 'Loaded', 10, 'IX1345'),
@@ -652,12 +647,12 @@ INSERT INTO Baggage (Baggage_ID, Baggae_weight, Baggage_status, Passenger_ID, Fl
 -- SR101
 (11, 27.4, 'Loaded', 11, 'SR101'),
 (12, 23.3, 'Loaded', 12, 'SR101'),
-(13, 35.8, 'Special Check', 13, 'SR101'), -- flagged, overweight
+(13, 35.8, 'Special Check', 13, 'SR101'), 
 (14, 26.5, 'Loaded', 14, 'SR101'),
 (15, 31.2, 'Loaded', 15, 'SR101'),
 
 -- SG356
-(16, 36.1, 'Special Check', 16, 'SG356'), -- flagged, overweight
+(16, 36.1, 'Special Check', 16, 'SG356'), 
 (17, 29.4, 'Loaded', 17, 'SG356'),
 (18, 25.9, 'Loaded', 18, 'SG356'),
 (19, 27.8, 'Loaded', 19, 'SG356'),
@@ -665,7 +660,7 @@ INSERT INTO Baggage (Baggage_ID, Baggae_weight, Baggage_status, Passenger_ID, Fl
 
 -- AK789
 (21, 28.5, 'Loaded', 21, 'AK789'),
-(22, 33.8, 'Special Check', 22, 'AK789'), -- flagged, overweight
+(22, 33.8, 'Special Check', 22, 'AK789'), 
 (23, 26.2, 'Loaded', 23, 'AK789'),
 (24, 22.3, 'Loaded', 24, 'AK789'),
 (25, 23.9, 'Loaded', 25, 'AK789'),
@@ -673,33 +668,33 @@ INSERT INTO Baggage (Baggage_ID, Baggae_weight, Baggage_status, Passenger_ID, Fl
 -- 6E1234
 (26, 30.1, 'Loaded', 26, '6E1234'),
 (27, 24.4, 'Loaded', 27, '6E1234'),
-(28, 34.5, 'Special Check', 28, '6E1234'), -- flagged, overweight
+(28, 34.5, 'Special Check', 28, '6E1234'), 
 (29, 26.1, 'Loaded', 29, '6E1234'),
 (30, 28.6, 'Loaded', 30, '6E1234'),
 
 -- IX5432
 (31, 20.9, 'Loaded', 31, 'IX5432'),
 (32, 23.7, 'Loaded', 32, 'IX5432'),
-(33, 36.4, 'Special Check', 33, 'IX5432'), -- flagged, overweight
+(33, 36.4, 'Special Check', 33, 'IX5432'), 
 (34, 27.3, 'Loaded', 34, 'IX5432'),
 (35, 28.2, 'Loaded', 35, 'IX5432'),
 
 -- SR202
 (36, 29.1, 'Loaded', 36, 'SR202'),
 (37, 28.9, 'Loaded', 37, 'SR202'),
-(38, 33.1, 'Special Check', 38, 'SR202'), -- flagged, overweight
+(38, 33.1, 'Special Check', 38, 'SR202'), 
 (39, 27.6, 'Loaded', 39, 'SR202'),
 (40, 26.7, 'Loaded', 40, 'SR202'),
 
 -- SG789
 (41, 22.0, 'Loaded', 41, 'SG789'),
-(42, 34.9, 'Special Check', 42, 'SG789'), -- flagged, overweight
+(42, 34.9, 'Special Check', 42, 'SG789'), 
 (43, 27.0, 'Loaded', 43, 'SG789'),
 (44, 23.2, 'Loaded', 44, 'SG789'),
 (45, 21.3, 'Loaded', 45, 'SG789'),
 
 -- AK456
-(46, 38.2, 'Special Check', 46, 'AK456'), -- flagged, overweight
+(46, 38.2, 'Special Check', 46, 'AK456'), 
 (47, 27.2, 'Loaded', 47, 'AK456'),
 (48, 26.4, 'Loaded', 48, 'AK456'),
 (49, 23.1, 'Loaded', 49, 'AK456'),
