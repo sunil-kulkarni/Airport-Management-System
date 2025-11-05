@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } f
 import './App.css';
 import AirportAdministration from './buttons/airport_administration';
 import CrewInfo from './buttons/crew_info';
-import EmergencyGround from './buttons/emergency_ground';
+import GroundOperations from './buttons/ground_operations';
 import FlightSchedule from './buttons/flight_schedule';
 import Reports from './buttons/reports';
 import PassengerInfo from './buttons/passenger_info';
@@ -286,7 +286,7 @@ function Navigation() {
     <div className="container">
       <Link to="/airport_administration"><button>Airport Administration</button></Link>
       <Link to="/crew-info"><button>Crew Info</button></Link>
-      <Link to="/emergency-ground"><button>Emergency Ground</button></Link>
+      <Link to="/ground_operations"><button>Ground Operations</button></Link>
       <Link to="/flight-schedule"><button>Flight Schedule</button></Link>
       <Link to="/reports"><button>Reports</button></Link>
       <Link to="/passenger-info"><button>Passenger Info</button></Link>
@@ -303,7 +303,7 @@ function Home() {
         <Link to="/crew-info"><button className="dashboard-btn">Crew Info</button></Link>
         <Link to="/passenger-info"><button className="dashboard-btn">Passenger Info</button></Link>
         <Link to="/reports"><button className="dashboard-btn">Reports</button></Link>
-        <Link to="/emergency-ground"><button className="dashboard-btn">Emergency Ground</button></Link>
+        <Link to="/ground_operations"><button className="dashboard-btn">Ground Operations</button></Link>
         <Link to="/airport_administration"><button className="dashboard-btn">Airport Admin</button></Link>
         <Link to="/flight-schedule"><button className="dashboard-btn">Flight Schedule</button></Link>
       </div>
@@ -344,7 +344,7 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/airport_administration" element={<AirportAdministration />} />
               <Route path="/crew-info" element={<CrewInfo />} />
-              <Route path="/emergency-ground" element={<EmergencyGround />} />
+              <Route path="/ground_operations" element={<GroundOperations />} />
               <Route path="/flight-schedule" element={<FlightSchedule />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/passenger-info" element={<PassengerInfo />} />
