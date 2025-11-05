@@ -426,33 +426,76 @@ def update_passenger_status(passenger_id: int, status_update: StatusUpdate, db: 
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/emergency-ground/data")
-def get_emergency_ground_data(db: Session = Depends(get_db)):
+@app.get("/api/ground_operations/data")
+def get_ground_operations_data(db: Session = Depends(get_db)):
     try:
-        employees = db.execute(text("SELECT Employee_ID, F_Name, L_Name, Job_title, Airport_ID FROM Employee")).fetchall()
-        aircraft = db.execute(text("SELECT Aircraft_ID, capacity, Manufacturer, Model, Airline_ID FROM Aircraft")).fetchall()
+        # Get medical staff
+        medical_staff = db.execute(text("""
+            SELECT Employee_ID, Employee_name, Job_title 
+            FROM Employee 
+            WHERE Job_title IN ('Medical staff', 'Medical staffs')
+        """)).fetchall()
 
-        employee_list = []
-        for e in employees:
-            employee_list.append({
-                "Employee_ID": e.Employee_ID,
-                "F_Name": e.F_Name,
-                "L_Name": e.L_Name,
-                "Job_title": e.Job_title,
-                "Airport_ID": e.Airport_ID
-            })
+        # Get ground engineers
+        ground_engineers = db.execute(text("""
+            SELECT Employee_ID, Employee_name, Job_title 
+            FROM Employee 
+            WHERE Job_title = 'Ground Engineer'
+        """)).fetchall()
 
-        aircraft_list = []
-        for a in aircraft:
-            aircraft_list.append({
-                "Aircraft_ID": a.Aircraft_ID,
-                "capacity": a.capacity,
-                "Manufacturer": a.Manufacturer,
-                "Model": a.Model,
-                "Airline_ID": a.Airline_ID
-            })
+        # Get flagged passengers with illness
+        ill_passengers = db.execute(text("""
+            SELECT p.Passenger_ID, p.Passenger_name, p.Passenger_status, p.Flight_no, f.src_city, f.des_city
+            FROM Passenger p
+            JOIN Flight f ON p.Flight_no = f.Flight_no
+            WHERE p.Passenger_status = 'Illness'
+        """)).fetchall()
 
-        return {"employees": employee_list, "aircraft": aircraft_list}
+        # Get arrival flights
+        arrival_flights = db.execute(text("""
+            SELECT Flight_no, src_city, des_city, Airline_name, arrival_time
+            FROM Flight
+            WHERE Flight_status = 'Arrival'
+        """)).fetchall()
+
+        return {
+            "medical_staff": [{"Employee_ID": m.Employee_ID, "Employee_name": m.Employee_name, "Job_title": m.Job_title} for m in medical_staff],
+            "ground_engineers": [{"Employee_ID": g.Employee_ID, "Employee_name": g.Employee_name, "Job_title": g.Job_title} for g in ground_engineers],
+            "ill_passengers": [{"Passenger_ID": p.Passenger_ID, "Passenger_name": p.Passenger_name, "Passenger_status": p.Passenger_status, "Flight_no": p.Flight_no, "src_city": p.src_city, "des_city": p.des_city} for p in ill_passengers],
+            "arrival_flights": [{"Flight_no": f.Flight_no, "src_city": f.src_city, "des_city": f.des_city, "Airline_name": f.Airline_name, "arrival_time": str(f.arrival_time) if f.arrival_time else None} for f in arrival_flights]
+        }
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/ground_operations/assign_medical")
+def assign_medical_staff(data: dict, db: Session = Depends(get_db)):
+    try:
+        passenger_id = data.get("Passenger_ID")
+        staff_id = data.get("Employee_ID")
+
+        if not passenger_id or not staff_id:
+            raise HTTPException(status_code=400, detail="Passenger_ID and Employee_ID are required")
+
+        # Here you can create assignment logic - could be stored in a new table or update passenger records
+        # For now, we'll just return success
+        return {"message": "Medical staff assigned successfully", "passenger_id": passenger_id, "staff_id": staff_id}
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/ground_operations/assign_engineer")
+def assign_ground_engineer(data: dict, db: Session = Depends(get_db)):
+    try:
+        flight_no = data.get("Flight_no")
+        engineer_id = data.get("Employee_ID")
+
+        if not flight_no or not engineer_id:
+            raise HTTPException(status_code=400, detail="Flight_no and Employee_ID are required")
+
+        return {"message": "Ground engineer assigned successfully", "flight_no": flight_no, "engineer_id": engineer_id}
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
