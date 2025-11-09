@@ -29,10 +29,12 @@ def signin(
             SELECT * FROM Employee 
             WHERE F_Name = :first_name 
               AND pwd = :password 
-              AND Job_title = 'Airport Head of Staff' LIMIT 1
+              AND Job_title IN ('Airport Head of Staff', 'Security')
+            LIMIT 1
         """)
         res = db.execute(query, {"first_name": first_name, "password": password})
         employee = res.fetchone()
+        
         if not employee:
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
@@ -42,9 +44,12 @@ def signin(
             "Job_title": employee.Job_title,
             "Airport_ID": employee.Airport_ID,
         }
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Error in signin: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
 
 @app.get("/api/reports/flight-traffic")
 def get_flight_traffic_report(db: Session = Depends(get_db)):
@@ -77,15 +82,34 @@ def get_flight_traffic_report(db: Session = Depends(get_db)):
 @app.get("/api/reports/employee-stats")
 def get_employee_report(db: Session = Depends(get_db)):
     try:
-        # Call the stored procedure
-        results = db.execute(text("CALL GetEmployeeStats()")).fetchall()
+        job_stats_query = text("""
+            SELECT 
+                Job_title, 
+                COUNT(*) AS emp_count, 
+                SUM(Employee_Salary) AS total_salary,
+                AVG(Employee_Salary) AS avg_salary_per_job
+            FROM Employee
+            GROUP BY Job_title
+        """)
+        results = db.execute(job_stats_query).fetchall()
 
-        job_stats = {row.Job_title: {"count": row.emp_count, "total_salary": row.total_salary} for row in results}
+        job_stats = {
+            row.Job_title: {
+                "count": row.emp_count, 
+                "total_salary": row.total_salary,
+                "avg_salary": int(row.avg_salary_per_job) if row.avg_salary_per_job else 0
+            } 
+            for row in results
+        }
+        
         total_employees = sum(row.emp_count for row in results)
         total_salary = sum(row.total_salary for row in results)
-
-        avg_salary_row = db.execute(text("SELECT GetAverageSalary() AS avg_salary")).fetchone()
-        avg_salary = avg_salary_row.avg_salary if avg_salary_row else 0
+        avg_salary_query = text("""
+            SELECT AVG(Employee_Salary) AS avg_salary 
+            FROM Employee
+        """)
+        avg_salary_row = db.execute(avg_salary_query).fetchone()
+        avg_salary = int(avg_salary_row.avg_salary) if avg_salary_row.avg_salary else 0
 
         return {
             "total_employees": total_employees,
@@ -322,8 +346,6 @@ def assign_crew_to_flight(assignment_data: dict, db: Session = Depends(get_db)):
     
         if not crew_id or not flight_no:
             raise HTTPException(status_code=400, detail="Crew_ID and Flight_no are required")
-            
-        # Update Crew's Flight_no WHERE Crew_ID matches and current Flight_no IS NULL
         update_query = text("""
             UPDATE Crew 
             SET Flight_no = :flight_no 
@@ -331,7 +353,6 @@ def assign_crew_to_flight(assignment_data: dict, db: Session = Depends(get_db)):
         """)
         result = db.execute(update_query, {"crew_id": crew_id, "flight_no": flight_no})
         if result.rowcount == 0:
-            # No rows updated = either Crew_ID not found or already assigned to a flight
             raise HTTPException(status_code=404, detail="Crew member not found or already assigned")
         db.commit()
         return {"message": "Crew member assigned successfully", "crew_id": crew_id, "flight_no": flight_no}
@@ -429,29 +450,22 @@ def update_passenger_status(passenger_id: int, status_update: StatusUpdate, db: 
 @app.get("/api/ground_operations/data")
 def get_ground_operations_data(db: Session = Depends(get_db)):
     try:
-        # Get medical staff
         medical_staff = db.execute(text("""
             SELECT Employee_ID, Employee_name, Job_title 
             FROM Employee 
             WHERE Job_title IN ('Medical staff', 'Medical staffs')
         """)).fetchall()
-
-        # Get ground engineers
         ground_engineers = db.execute(text("""
             SELECT Employee_ID, Employee_name, Job_title 
             FROM Employee 
             WHERE Job_title = 'Ground Engineer'
         """)).fetchall()
-
-        # Get flagged passengers with illness
         ill_passengers = db.execute(text("""
             SELECT p.Passenger_ID, p.Passenger_name, p.Passenger_status, p.Flight_no, f.src_city, f.des_city
             FROM Passenger p
             JOIN Flight f ON p.Flight_no = f.Flight_no
             WHERE p.Passenger_status = 'Illness'
         """)).fetchall()
-
-        # Get arrival flights
         arrival_flights = db.execute(text("""
             SELECT Flight_no, src_city, des_city, Airline_name, arrival_time
             FROM Flight
@@ -477,9 +491,6 @@ def assign_medical_staff(data: dict, db: Session = Depends(get_db)):
 
         if not passenger_id or not staff_id:
             raise HTTPException(status_code=400, detail="Passenger_ID and Employee_ID are required")
-
-        # Here you can create assignment logic - could be stored in a new table or update passenger records
-        # For now, we'll just return success
         return {"message": "Medical staff assigned successfully", "passenger_id": passenger_id, "staff_id": staff_id}
     except Exception as e:
         print(f"Error: {e}")

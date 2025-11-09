@@ -61,8 +61,8 @@ class Flight(Base):
     Airline_ID = Column(Integer, ForeignKey('Airline.Airline_ID'), nullable=False)
     Gate_no = Column(String(10))
     Terminal = Column(Integer)
-    src_city = Column(String(255))  # Changed from src_airport_id
-    des_city = Column(String(255))  # Changed from des_airport_id
+    src_city = Column(String(255)) 
+    des_city = Column(String(255))  
 
 
 
