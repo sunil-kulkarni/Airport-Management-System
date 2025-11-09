@@ -272,9 +272,10 @@ INSERT INTO Aircraft (Aircraft_ID, capacity, Manufacturer, Model, Airline_ID) VA
 
 -- Insert Employees 
 
--- 1. Airport Head of Staff 
+-- 1. Airport Head of Staff and security
 INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID, Assign, pwd) VALUES
-(1001, 'abc', 'K', 'Kumar', 'Rajesh K Kumar', '2020-01-15', 150000, 'Airport Head of Staff', 'BLR',0, 'admin123');
+(1001, 'abc', 'K', 'def', 'abc def', '2020-01-15', 150000, 'Airport Head of Staff', 'BLR',0, 'admin123'),
+(1002, 'xyz', 'B', 'lmn', 'xyz B lmn', '2020-01-15', 15000, 'Security', 'BLR',0, 'security123');
 
 -- 2. Check-in Handlers 
 INSERT INTO Employee (Employee_ID, F_Name, M_Initial, L_Name, Employee_name, Hire_date, Employee_Salary, Job_title, Airport_ID,Assign, pwd) VALUES
