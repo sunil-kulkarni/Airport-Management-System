@@ -9,7 +9,6 @@ import Reports from './buttons/reports';
 import PassengerInfo from './buttons/passenger_info';
 import kialLogo from './images/kial.png';
 
-// SignIn component with lighter gradient and emoji icons
 function SignIn({ onLogin }) {
   const [firstName, setFirstName] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +27,10 @@ function SignIn({ onLogin }) {
       });
       if (!response.ok) throw new Error('Invalid credentials');
       const data = await response.json();
+      
+      // Store user data in localStorage
+      localStorage.setItem('user', JSON.stringify(data));
+      
       onLogin(data);
     } catch (err) {
       setError(err.message);
@@ -128,7 +131,6 @@ function SignIn({ onLogin }) {
           {loading ? 'Signing In...' : 'Sign In'}
         </button>
       </form>
-      {/* Footer for sign-in page */}
       <footer style={{
         position: 'fixed',
         bottom: 0, left: 0, right: 0,
@@ -146,6 +148,7 @@ function SignIn({ onLogin }) {
     </div>
   );
 }
+
 function SignInHeader() {
   return (
     <header style={{
@@ -178,12 +181,12 @@ function SignInHeader() {
   );
 }
 
-
 function Header({ user, onLogout }) {
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
   const handleLogout = () => {
     setShowProfile(false);
+    localStorage.removeItem('user');
     onLogout();
     navigate("/");
   };
@@ -221,7 +224,7 @@ function Header({ user, onLogout }) {
         fontWeight: 700,
         fontSize: 22,
         letterSpacing: '0.01em',
-        marginLeft: '-46px' // negative margin to roughly center title with logo present
+        marginLeft: '-46px'
       }}>
         Airport Management System
       </div>
@@ -280,47 +283,84 @@ function Header({ user, onLogout }) {
   );
 }
 
+// Home component - shows different dashboard based on role
+function Home({ user }) {
+  const isSecurity = user?.Job_title === 'Security';
 
-function Navigation() {
+  if (isSecurity) {
+    // Security user - redirect directly to Passenger Info
+    return <Navigate to="/passenger-info" replace />;
+  }
+
+  // Airport Head of Staff - full dashboard
   return (
-    <div className="container">
-      <Link to="/airport_administration"><button>Airport Administration</button></Link>
-      <Link to="/crew-info"><button>Crew Info</button></Link>
-      <Link to="/ground_operations"><button>Ground Operations</button></Link>
-      <Link to="/flight-schedule"><button>Flight Schedule</button></Link>
-      <Link to="/reports"><button>Reports</button></Link>
-      <Link to="/passenger-info"><button>Passenger Info</button></Link>
+    <div className="background-root">
+      <div className="dashboard-wrapper">
+        <div className="dashboard-buttons">
+          <Link to="/crew-info"><button className="dashboard-btn">Crew Info</button></Link>
+          <Link to="/passenger-info"><button className="dashboard-btn">Passenger Info</button></Link>
+          <Link to="/reports"><button className="dashboard-btn">Reports</button></Link>
+          <Link to="/ground_operations"><button className="dashboard-btn">Ground Operations</button></Link>
+          <Link to="/airport_administration"><button className="dashboard-btn">Airport Admin</button></Link>
+          <Link to="/flight-schedule"><button className="dashboard-btn">Flight Schedule</button></Link>
+        </div>
+        <div className="dashboard-map">
+          <iframe
+            title="Kempegowda International Airport"
+            width="440"
+            height="350"
+            style={{ border: 0, borderRadius: 12 }}
+            src="https://www.google.com/maps?q=Kempegowda+International+Airport&output=embed"
+            allowFullScreen=""
+            loading="lazy"
+          />
+        </div>
+      </div>
     </div>
   );
 }
 
-function Home() {
-  return (
-    <div className="background-root">
-    <div className="dashboard-wrapper">
-      {/* Left: Button grid */}
-      <div className="dashboard-buttons">
-        <Link to="/crew-info"><button className="dashboard-btn">Crew Info</button></Link>
-        <Link to="/passenger-info"><button className="dashboard-btn">Passenger Info</button></Link>
-        <Link to="/reports"><button className="dashboard-btn">Reports</button></Link>
-        <Link to="/ground_operations"><button className="dashboard-btn">Ground Operations</button></Link>
-        <Link to="/airport_administration"><button className="dashboard-btn">Airport Admin</button></Link>
-        <Link to="/flight-schedule"><button className="dashboard-btn">Flight Schedule</button></Link>
-      </div>
-      {/* Right: Map Box */}
-      <div className="dashboard-map">
-        <iframe
-  title="Kempegowda International Airport"
-  width="440"
-  height="350"
-  style={{ border: 0, borderRadius: 12 }}
-  src="https://www.google.com/maps?q=Kempegowda+International+Airport&output=embed"
-  allowFullScreen=""
-  loading="lazy"
-/>
+// Protected Route component
+function ProtectedRoute({ user, allowedRoles, children }) {
+  if (!allowedRoles.includes(user?.Job_title)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+  return children;
+}
 
-      </div>
-    </div>
+// Unauthorized page
+function Unauthorized() {
+  const navigate = useNavigate();
+  return (
+    <div style={{
+      minHeight: '80vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+      padding: 20
+    }}>
+      <div style={{ fontSize: 80, marginBottom: 20 }}>🚫</div>
+      <h1 style={{ fontSize: 32, color: '#ef4444', marginBottom: 10 }}>Access Denied</h1>
+      <p style={{ fontSize: 18, color: '#666', marginBottom: 30 }}>
+        You don't have permission to access this page.
+      </p>
+      <button
+        onClick={() => navigate('/home')}
+        style={{
+          padding: '12px 24px',
+          backgroundColor: '#2563eb',
+          color: 'white',
+          border: 'none',
+          borderRadius: 8,
+          fontSize: 16,
+          fontWeight: 600,
+          cursor: 'pointer'
+        }}
+      >
+        Go to Home
+      </button>
     </div>
   );
 }
@@ -341,24 +381,72 @@ function App() {
           ) : (
             <>
               <Route path="/" element={<Navigate to="/home" replace />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/airport_administration" element={<AirportAdministration />} />
-              <Route path="/crew-info" element={<CrewInfo />} />
-              <Route path="/ground_operations" element={<GroundOperations />} />
-              <Route path="/flight-schedule" element={<FlightSchedule />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/passenger-info" element={<PassengerInfo />} />
+              <Route path="/home" element={<Home user={user} />} />
+              
+              {/* Passenger Info - accessible by both Admin and Security */}
+              <Route 
+                path="/passenger-info" 
+                element={
+                  <ProtectedRoute user={user} allowedRoles={['Airport Head of Staff', 'Security']}>
+                    <PassengerInfo />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Admin-only routes */}
+              <Route 
+                path="/airport_administration" 
+                element={
+                  <ProtectedRoute user={user} allowedRoles={['Airport Head of Staff']}>
+                    <AirportAdministration />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/crew-info" 
+                element={
+                  <ProtectedRoute user={user} allowedRoles={['Airport Head of Staff']}>
+                    <CrewInfo />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/ground_operations" 
+                element={
+                  <ProtectedRoute user={user} allowedRoles={['Airport Head of Staff']}>
+                    <GroundOperations />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/flight-schedule" 
+                element={
+                  <ProtectedRoute user={user} allowedRoles={['Airport Head of Staff']}>
+                    <FlightSchedule />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/reports" 
+                element={
+                  <ProtectedRoute user={user} allowedRoles={['Airport Head of Staff']}>
+                    <Reports />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route path="/unauthorized" element={<Unauthorized />} />
               <Route path="*" element={<Navigate to="/home" />} />
             </>
           )}
         </Routes>
       </main>
-      {/* Footer for all pages except the sign-in page */}
-      <footer>
-        &copy; Kempegowda International Airport
-      </footer>
+      {user && (
+        <footer>
+          &copy; Kempegowda International Airport
+        </footer>
+      )}
     </Router>
-    
   );
 }
 

@@ -58,6 +58,7 @@ const AirportAdministration = () => {
     if (
       emp.Job_title === 'Airport Head of Staff' ||
       emp.Job_title === 'Pilot' ||
+      emp.Job_title === 'Security' ||
       emp.Job_title === 'Flight Attendant'
     ) {
       return false;

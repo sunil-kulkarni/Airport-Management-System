@@ -254,13 +254,13 @@ filteredFlights.map((flight, idx) => {
       background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
       border: '1px solid #e0e0e0',
       borderRadius: 12,
-      marginBottom: 15,  // slightly less margin
+      marginBottom: 15,  
       padding: 0,
-      boxShadow: '0 3px 8px rgba(0,0,0,0.07)',  // lighter shadow
+      boxShadow: '0 3px 8px rgba(0,0,0,0.07)',  
       overflow: 'hidden',
       transition: 'all 0.3s ease',
       cursor: 'pointer',
-      maxWidth: 750  // constrain max width more
+      maxWidth: 750  
     }}
     onMouseEnter={(e) => {
       e.currentTarget.style.transform = 'translateY(-3px)';
@@ -274,7 +274,7 @@ filteredFlights.map((flight, idx) => {
       <div style={{
         background: colors.bg,
         color: colors.text,
-        padding: '12px 16px',  // smaller padding
+        padding: '12px 16px',  
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'

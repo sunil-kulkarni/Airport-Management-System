@@ -14,7 +14,6 @@ const Reports = () => {
     let endpoint = '';
     if (type === 'flight-traffic') endpoint = 'http://localhost:8000/api/reports/flight-traffic';
     if (type === 'employee') endpoint = 'http://localhost:8000/api/reports/employee-stats';
-    if (type === 'passenger') endpoint = 'http://localhost:8000/api/reports/passenger-traffic';
 
     fetch(endpoint)
       .then(res => {
@@ -33,7 +32,6 @@ const Reports = () => {
   };
 
   const downloadPDF = () => {
-    // Create a printable version
     const printWindow = window.open('', '_blank');
     const reportContent = document.getElementById('report-content').innerHTML;
     
@@ -167,58 +165,6 @@ const Reports = () => {
     </div>
   );
 
-  const renderPassengerReport = () => (
-    <div id="report-content">
-      <h1>🧳 Passenger Traffic Report</h1>
-      <p style={{ color: '#666', marginBottom: 30 }}>Generated on {new Date().toLocaleString()}</p>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 30 }}>
-        <div style={{ background: '#E3F2FD', padding: 20, borderRadius: 8, textAlign: 'center' }}>
-          <div style={{ fontSize: 14, color: '#666' }}>Total Passengers</div>
-          <div style={{ fontSize: 36, fontWeight: 'bold', color: '#1976D2' }}>{reportData.total_passengers}</div>
-        </div>
-        <div style={{ background: '#E8F5E9', padding: 20, borderRadius: 8, textAlign: 'center' }}>
-          <div style={{ fontSize: 14, color: '#666' }}>Total Tickets</div>
-          <div style={{ fontSize: 36, fontWeight: 'bold', color: '#388E3C' }}>{reportData.total_tickets}</div>
-        </div>
-        <div style={{ background: '#FFF3E0', padding: 20, borderRadius: 8, textAlign: 'center' }}>
-          <div style={{ fontSize: 14, color: '#666' }}>Total Baggage</div>
-          <div style={{ fontSize: 36, fontWeight: 'bold', color: '#F57C00' }}>{reportData.total_baggage}</div>
-        </div>
-      </div>
-
-      <h2>Ticket Class Distribution</h2>
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 30 }}>
-        <thead>
-          <tr style={{ backgroundColor: '#007bff', color: 'white' }}>
-            <th style={{ padding: 12, textAlign: 'left', border: '1px solid #ddd' }}>Class</th>
-            <th style={{ padding: 12, textAlign: 'right', border: '1px solid #ddd' }}>Number of Tickets</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(reportData.ticket_class_breakdown).map(([className, count], idx) => (
-            <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#f8f9fa' : 'white' }}>
-              <td style={{ padding: 12, border: '1px solid #ddd' }}>{className}</td>
-              <td style={{ padding: 12, textAlign: 'right', border: '1px solid #ddd' }}>{count}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <h2>Baggage Statistics</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }}>
-        <div style={{ background: '#f8f9fa', padding: 20, borderRadius: 8 }}>
-          <div style={{ fontSize: 14, color: '#666' }}>Total Baggage Weight</div>
-          <div style={{ fontSize: 32, fontWeight: 'bold', color: '#007bff' }}>{reportData.baggage_stats.total_weight} kg</div>
-        </div>
-        <div style={{ background: '#f8f9fa', padding: 20, borderRadius: 8 }}>
-          <div style={{ fontSize: 14, color: '#666' }}>Average Baggage Weight</div>
-          <div style={{ fontSize: 32, fontWeight: 'bold', color: '#007bff' }}>{reportData.baggage_stats.average_weight} kg</div>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <div style={{ maxWidth: 1200, margin: '20px auto', padding: '0 20px' }}>
       <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: 30, color: '#333' }}>
@@ -226,7 +172,7 @@ const Reports = () => {
       </h1>
 
       {/* Report Type Selection */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 40 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginBottom: 40 }}>
         <button
           onClick={() => generateReport('flight-traffic')}
           style={{
@@ -263,24 +209,6 @@ const Reports = () => {
         >
           👥 Employee Statistics
         </button>
-        <button
-          onClick={() => generateReport('passenger')}
-          style={{
-            padding: '40px 20px',
-            backgroundColor: '#ffc107',
-            color: '#333',
-            border: 'none',
-            borderRadius: 12,
-            cursor: 'pointer',
-            fontSize: '18px',
-            fontWeight: '600',
-            transition: 'all 0.3s ease'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-        >
-          🧳 Passenger Traffic
-        </button>
       </div>
 
       {/* Loading State */}
@@ -303,7 +231,6 @@ const Reports = () => {
         <div style={{ backgroundColor: 'white', padding: 30, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
           {reportType === 'flight-traffic' && renderFlightTrafficReport()}
           {reportType === 'employee' && renderEmployeeReport()}
-          {reportType === 'passenger' && renderPassengerReport()}
 
           {/* Download PDF Button */}
           <div style={{ marginTop: 30, textAlign: 'center' }}>
