@@ -12,7 +12,7 @@ git clone https://github.com/sunil-kulkarni/Airport-Management-System.git
 #### For frontend
 ```bash
 cd airport-management-frontend
-npm i
+npm i # install the necessary packages
 ```
 
 #### For backend
@@ -26,12 +26,13 @@ pip install -r requirements.txt
 ```
 ### Initialise the database
 ```bash
-mysql -u root -p < database/mini_project.sql
+mysql -u root -p < database/mini_project.sql # for loading the commands from sql file
 ```
 
 ### Start the Backend
 
 ```bash
+cd airport-management-backend
 uvicorn main:app --reload
 ```
 
